@@ -11,9 +11,6 @@ import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 
 const ListarCliente = () => {
-    const [clientes, setClientes] = useState([]);
-    const [paginationInfo, setPaginationInfo] = useState({});
-    const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -21,12 +18,29 @@ const ListarCliente = () => {
 
     const [clienteToToggle, setClienteToToggle] = useState(null);
 
+    const [clientes, setClientes] = useState([]);
+    const [paginationInfo, setPaginationInfo] = useState({ 
+        // 💡 Inicialización segura
+        currentPage: 1, 
+        totalPages: 1, 
+        totalItems: 0 
+    });
+    const [currentPage, setCurrentPage] = useState(1);
+
     // Mover fetchClientes afuera para re-uso (o envolver la lógica)
     const fetchClientes = async (page) => {
         setLoading(true);
         setError(null);
         try {
             const data = await getClientes(page);
+
+     
+              console.log("Paginación Info:", { 
+                  currentPage: data.current_page, 
+                  totalPages: data.last_page, 
+                  totalItems: data.total 
+              });
+
             setClientes(data.data);
             setPaginationInfo({
                 currentPage: data.current_page,

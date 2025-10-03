@@ -6,7 +6,7 @@ export const handleResponse = async (response) => {
     const result = await response.json();
 
     if (!response.ok) {
-        // La lógica de error ya está bien, no necesita cambios.
+        // Lógica de error (se mantiene igual, funciona bien)
         const error = {
             type: 'error',
             message: result.message || 'Ocurrió un error inesperado.',
@@ -15,13 +15,22 @@ export const handleResponse = async (response) => {
         throw error;
     }
 
-    // ÉXITO: Crea y devuelve nuestro objeto de éxito estándar.
+    // =========================================================================
+    // 💡 CAMBIO CLAVE: DETECTAR Y DEVOLVER RESPUESTAS DE PAGINACIÓN DE LARAVEL
+    // =========================================================================
+    
+    // Si la respuesta contiene 'current_page' (indicador de paginación de Laravel),
+    // la devolvemos TAL CUAL está, sin envolverla en 'type'/'message'.
+    if (result.current_page !== undefined) {
+        return result; 
+    }
+
+    // ÉXITO para las demás llamadas (creación, actualización, etc.):
     const success = {
         type: 'success',
+        // Si el backend no envía un mensaje, usamos uno por defecto.
         message: result.message || 'Operación realizada con éxito.',
-        data: result.data,
-        pagination: result.pagination,
-        summary: result.summary,
+        data: result.data || result, // Devuelve 'data' si existe, o el objeto completo si no.
     };
     return success;
 };
