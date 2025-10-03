@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // 💡 Importación corregida y useEffect añadido
+import React, { useState, useEffect, useCallback, useMemo } from 'react'; // 💡 Añadido useMemo
 import { Link, useLocation } from 'react-router-dom';
 import { Bars3Icon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import jwtUtils from 'utilities/Token/jwtUtils';
@@ -6,107 +6,105 @@ import { logout } from 'js/logout';
 import logo from 'assets/img/talara_creditos_inversiones_logo.png';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 
+// El objeto 'menus' se define UNA SOLA VEZ fuera del componente para ser estable.
+const menus = {
+    admin: [
+        { section: 'Dashboard', link: '/admin/dashboard' },
+        { 
+            section: 'Clientes', 
+            subs: [
+                { name: 'Agregar Cliente', link: '/admin/agregar-cliente' },
+                { name: 'Listar Clientes', link: '/admin/listar-clientes' },
+            ],
+        },
+        {
+            section: 'Productos',
+            subs: [
+                { name: 'Agregar Producto', link: '/admin/agregar-producto' },
+                { name: 'Listar Producto', link: '/admin/listar-productos' },
+            ],
+        }
+    ],
+    cliente: [
+        { section: 'Home', link: '/cliente' },
+        {
+            section: 'Solicitud Préstamos',
+            subs: [
+                { name: 'Solicitar', link: '/cliente/solicitar-prestamo' },
+                { name: 'Mis Solicitudes', link: '/cliente/mis-solicitudes' },
+            ],
+        },
+        { section: 'Support', link: '/cliente/support' },
+    ],
+    asesor: [
+        { section: 'Dashboard', link: '/asesor/dashboard' },
+        {
+            section:'Evaluaciones',
+            subs:[
+                {name:'Evaluar Cliente' , link:'/asesor/evaluacion-cliente'},
+                {name:'Evaluaciones Enviadas' ,  link: '/asesor/evaluaciones-enviadas'}
+            ]
+        },
+    ],
+    cajero: [
+        { section: 'Dashboard', link: '/cajero/dashboard' },
+        { section: 'Reports', link: '/cajero/reports' },
+        {
+            section: 'Teams',
+            subs: [
+                { name: 'Team List', link: '/encargado/teams/list' },
+                { name: 'Assign Tasks', link: '/encargado/teams/tasks' },
+            ],
+        },
+    ],
+};
+
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    // 💡 Estado para el acordeón: almacena el nombre de la sección abierta o null.
     const [openSection, setOpenSection] = useState(null); 
     const [showConfirm, setShowConfirm] = useState(false);
     
-    // 💡 Hook para obtener la ruta actual
     const location = useLocation();
 
     const refresh_token = jwtUtils.getRefreshTokenFromCookie();
     const rol = refresh_token ? jwtUtils.getUserRole(refresh_token) : null;
+
+    // 💡 SOLUCIÓN: Usamos useMemo para garantizar que roleMenu solo se recalcule
+    // si el 'rol' cambia, estabilizando así su referencia para el useEffect.
+    const roleMenu = useMemo(() => {
+        return rol && menus[rol] ? menus[rol] : [];
+    }, [rol]); // Dependencia: solo cambia cuando el rol cambia.
 
     const handleLogout = () => {
         logout();
         setShowConfirm(false);
     };
 
-    const menus = {
-        admin: [
-            { section: 'Dashboard', link: '/admin/dashboard' },
-            { 
-                section: 'Clientes', 
-                subs: [
-                    { name: 'Agregar Cliente', link: '/admin/agregar-cliente' },
-                    { name: 'Listar Clientes', link: '/admin/listar-clientes' },
-                ],
-            },
-            {
-                section: 'Productos',
-                subs: [
-                    { name: 'Agregar Producto', link: '/admin/agregar-producto' },
-                    { name: 'Listar Producto', link: '/admin/listar-productos' },
-                ],
-            }
-        ],
-        cliente: [
-            { section: 'Home', link: '/cliente' },
-            {
-                section: 'Solicitud Préstamos',
-                subs: [
-                    { name: 'Solicitar', link: '/cliente/solicitar-prestamo' },
-                    { name: 'Mis Solicitudes', link: '/cliente/mis-solicitudes' },
-                ],
-            },
-            { section: 'Support', link: '/cliente/support' },
-        ],
-        asesor: [
-            { section: 'Dashboard', link: '/asesor/dashboard' },
-            {
-                section:'Evaluaciones',
-                subs:[
-                    {name:'Evaluar Cliente' , link:'/asesor/evaluacion-cliente'},
-                    {name:'Evaluaciones Enviadas' ,  link: '/asesor/evaluaciones-enviadas'}
-                ]
-            },
-        ],
-        cajero: [
-            { section: 'Dashboard', link: '/cajero/dashboard' },
-            { section: 'Reports', link: '/cajero/reports' },
-            {
-                section: 'Teams',
-                subs: [
-                    { name: 'Team List', link: '/encargado/teams/list' },
-                    { name: 'Assign Tasks', link: '/encargado/teams/tasks' },
-                ],
-            },
-        ],
-    };
-
-    const roleMenu = rol && menus[rol] ? menus[rol] : [];
-
-    // 💡 Lógica de acordeón: Si la sección ya está abierta, la cierra (null); si no, abre la nueva sección.
     const toggleSection = (section) => {
         setOpenSection(prevSection => prevSection === section ? null : section);
     };
 
-    // 💡 Helper para verificar si la ruta actual está dentro de esta sección o subsección.
-    const isSectionActive = (item) => {
-        // Verifica link directo
+    // isSectionActive usa useCallback y solo depende de location.pathname
+    const isSectionActive = useCallback((item) => {
         if (item.link && location.pathname.startsWith(item.link)) {
             return true;
         }
-        // Verifica sublinks
         if (item.subs) {
             return item.subs.some(sub => location.pathname.startsWith(sub.link));
         }
         return false;
-    };
+    }, [location.pathname]); 
     
-    // 💡 Hook para abrir automáticamente la sección activa al cambiar de ruta (cumple con las reglas de Hooks)
+    // useEffect ahora tiene todas sus dependencias estables y correctas.
     useEffect(() => {
-        // Solo buscamos la sección activa si no hay una abierta
         if (openSection === null) {
             const activeItem = roleMenu.find(item => isSectionActive(item));
             
-            // Si encontramos un ítem activo y tiene subgrupos, lo abrimos.
             if (activeItem && activeItem.subs) {
                 setOpenSection(activeItem.section);
             }
         }
-    }, [location.pathname, roleMenu]); // Se ejecuta al inicio y cada vez que la ruta cambia.
+    }, [location.pathname, roleMenu, isSectionActive, openSection]); 
 
 
     return (
@@ -138,8 +136,8 @@ const Sidebar = () => {
                 <div className="h-3/4 bg-red-800 overflow-y-auto p-4 flex flex-col">
                     <nav className="space-y-2 flex-grow">
                         {roleMenu.map((item, index) => {
-                            const isActive = isSectionActive(item); // Determina si la sección está activa
-                            const isSubOpen = item.subs && openSection === item.section; // Determina si está abierto por el acordeón
+                            const isActive = isSectionActive(item); 
+                            const isSubOpen = item.subs && openSection === item.section; 
 
                             return (
                                 <div key={index}>
@@ -147,7 +145,7 @@ const Sidebar = () => {
                                         <>
                                             <button
                                                 className={`w-full flex items-center justify-between py-2 px-4 rounded-md transition focus:outline-none 
-                                                            ${isActive ? 'bg-red-700 text-white' : 'text-white hover:bg-red-900'}`} // 💡 Clase activa
+                                                            ${isActive ? 'bg-red-700 text-white' : 'text-white hover:bg-red-900'}`} 
                                                 onClick={() => toggleSection(item.section)}
                                             >
                                                 <span>{item.section}</span>
@@ -157,17 +155,16 @@ const Sidebar = () => {
                                                     }`}
                                                 />
                                             </button>
-                                            {isSubOpen && ( // Solo renderiza si está abierta
+                                            {isSubOpen && ( 
                                                 <ul className="ml-4 space-y-1">
                                                     {item.subs.map((sub, subIndex) => (
                                                         <li key={subIndex}>
                                                             <Link
                                                                 to={sub.link}
-                                                                // 💡 Clase activa del subgrupo
                                                                 className={`block py-1 px-4 rounded-md transition text-sm ${
                                                                     location.pathname.startsWith(sub.link)
-                                                                        ? 'bg-red-700 text-white font-semibold' // Subgrupo activo
-                                                                        : 'text-white hover:bg-red-900' // Subgrupo inactivo
+                                                                        ? 'bg-red-700 text-white font-semibold' 
+                                                                        : 'text-white hover:bg-red-900' 
                                                                 }`}
                                                                 onClick={() => setIsOpen(false)}
                                                             >
@@ -181,7 +178,6 @@ const Sidebar = () => {
                                     ) : (
                                         <Link
                                             to={item.link}
-                                            // 💡 Clase activa para links directos
                                             className={`block py-2 px-4 rounded-md transition ${
                                                 isActive ? 'bg-red-700 text-white' : 'text-white hover:bg-red-900'
                                             }`}

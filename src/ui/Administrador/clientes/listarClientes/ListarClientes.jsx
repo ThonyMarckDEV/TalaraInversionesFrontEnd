@@ -1,6 +1,6 @@
-// src/pages/clientes/ListarCliente.jsx
+// src/ui/Administrador/clientes/listarClientes/ListarClientes.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // 💡 Importar useCallback
 // 💡 IMPORTAR la nueva función
 import { getClientes, toggleClienteEstado } from 'services/clienteService'; 
 import Pagination from '../components/Pagination';
@@ -20,26 +20,23 @@ const ListarCliente = () => {
 
     const [clientes, setClientes] = useState([]);
     const [paginationInfo, setPaginationInfo] = useState({ 
-        // 💡 Inicialización segura
         currentPage: 1, 
         totalPages: 1, 
         totalItems: 0 
     });
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Mover fetchClientes afuera para re-uso (o envolver la lógica)
-    const fetchClientes = async (page) => {
+    const fetchClientes = useCallback(async (page) => {
         setLoading(true);
         setError(null);
         try {
             const data = await getClientes(page);
 
-     
-              console.log("Paginación Info:", { 
-                  currentPage: data.current_page, 
-                  totalPages: data.last_page, 
-                  totalItems: data.total 
-              });
+            console.log("Paginación Info:", { 
+                currentPage: data.current_page, 
+                totalPages: data.last_page, 
+                totalItems: data.total 
+            });
 
             setClientes(data.data);
             setPaginationInfo({
@@ -54,11 +51,12 @@ const ListarCliente = () => {
             setLoading(false);
             if (isInitialLoad) setIsInitialLoad(false); 
         }
-    };
+    }, [isInitialLoad]);
+
 
     useEffect(() => {
         fetchClientes(currentPage);
-    }, [currentPage]);
+    }, [currentPage, fetchClientes]);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -69,7 +67,7 @@ const ListarCliente = () => {
         setClienteToToggle({ id: clienteId, estado: currentEstado });
     };
 
-     const executeToggleEstado = async () => {
+    const executeToggleEstado = async () => {
         if (!clienteToToggle) return;
 
         const { id, estado } = clienteToToggle;
@@ -82,7 +80,8 @@ const ListarCliente = () => {
         try {
             const response = await toggleClienteEstado(id, nuevoEstado);
             setAlert(response);
-            await fetchClientes(currentPage);
+            // 2. Volver a cargar los clientes después del cambio de estado
+            await fetchClientes(currentPage); 
         } catch (err) {
             console.error("Error al cambiar estado:", err);
             // El backend devuelve el objeto de error, lo mostramos
@@ -104,10 +103,10 @@ const ListarCliente = () => {
             <h1 className="text-3xl font-bold text-slate-800 mb-6">Listado de Clientes</h1>
 
             <AlertMessage
-              type={alert?.type}
-              message={alert?.message}
-              details={alert?.details}
-              onClose={() => setAlert(null)}
+                type={alert?.type}
+                message={alert?.message}
+                details={alert?.details}
+                onClose={() => setAlert(null)}
             />
 
             {/* 💡 RENDERIZAR EL MODAL DE CONFIRMACIÓN */}
