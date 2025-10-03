@@ -46,8 +46,9 @@ const ClienteForm = ({ data, handleChange }) => {
         <div>
           <label htmlFor="sexo" className="block text-sm font-medium text-slate-600 mb-1">Sexo</label>
           <select id="sexo" name="sexo" value={data.sexo} onChange={handleChange} className="input-style">
-              <option value="M">Masculino</option>
-              <option value="F">Femenino</option>
+              <option value="">Seleccione...</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
           </select>
         </div>
 
@@ -55,6 +56,7 @@ const ClienteForm = ({ data, handleChange }) => {
         <div>
           <label htmlFor="estadoCivil" className="block text-sm font-medium text-slate-600 mb-1">Estado Civil</label>
           <select id="estadoCivil" name="estadoCivil" value={data.estadoCivil} onChange={handleChange} className="input-style">
+              <option value="">Seleccione...</option>
               <option value="SOLTERO/A">Soltero/a</option>
               <option value="CASADO/A">Casado/a</option>
               <option value="VIUDO/A">Viudo/a</option>

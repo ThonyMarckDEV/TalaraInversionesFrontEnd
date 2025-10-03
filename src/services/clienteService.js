@@ -1,15 +1,25 @@
-// src/services/ClienteService.js
-
-import { fetchWithAuth } from 'js/authToken';
+import { fetchWithAuth } from 'js/authToken'; // Asumo que tienes estas utilidades
 import API_BASE_URL from 'js/urlHelper';
-
 import { handleResponse } from 'utilities/Responses/handleResponse'; 
 
-export const create = async () => {
-  const response = await fetchWithAuth(`${API_BASE_URL}/api/cliente/create`, {
-    method: 'GET',
+/**
+ * Envía los datos de un nuevo cliente al backend para su creación.
+ * @param {object} clienteData - El objeto anidado con todos los datos del formulario.
+ * @returns {Promise<object>} - El resultado de la operación desde el backend.
+ */
+export const createCliente = async (clienteData) => {
+  // El endpoint que crearemos en Laravel
+  const url = `${API_BASE_URL}/api/cliente/create`;
+
+  const response = await fetchWithAuth(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    // Convertimos el objeto de JS a una cadena JSON
+    body: JSON.stringify(clienteData)
   });
+
   return handleResponse(response);
 };
-
-export default create;

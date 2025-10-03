@@ -115,7 +115,7 @@ const AgregarCliente = () => {
   const renderFormStep = () => {
     switch (currentStep) {
       case 1:
-        return <ClienteForm data={formData.datosPersonales} handleChange={(e) => handleChange(e, 'datosPersonales')} />;
+        return <ClienteForm data={formData.datos} handleChange={(e) => handleChange(e, 'datos')} />;
       case 2:
         return (
           <>
