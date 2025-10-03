@@ -7,13 +7,19 @@ const AvalesForm = ({ avales, setAvales }) => {
     setAvales([
       ...avales,
       {
+        // === CAMBIO: Estado inicial ahora incluye todos los campos ===
         dniAval: '',
         apellidoPaternoAval: '',
         apellidoMaternoAval: '',
         nombresAval: '',
+        telefonoFijoAval: '',
         telefonoMovilAval: '',
         direccionAval: '',
-        // ... otros campos del aval inicializados en vacío
+        referenciaDomicilioAval: '',
+        departamentoAval: '',
+        provinciaAval: '',
+        distritoAval: '',
+        relacionClienteAval: '',
       },
     ]);
   };
@@ -39,57 +45,83 @@ const AvalesForm = ({ avales, setAvales }) => {
         </button>
       </div>
 
-      {avales.length === 0 && <p className="text-gray-500">No se han agregado avales.</p>}
+      {avales.length === 0 && (
+        <div className="text-center py-4 border-2 border-dashed rounded-lg text-gray-500">
+            <p>No se han agregado avales.</p>
+        </div>
+      )}
 
       <div className="space-y-8">
         {avales.map((aval, index) => (
-          <div key={index} className="bg-gray-50 p-4 rounded-lg border relative">
-            <h3 className="font-bold text-gray-600 mb-4">Aval #{index + 1}</h3>
-             <button
-              type="button"
-              onClick={() => removeAval(index)}
-              className="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl"
-              title="Eliminar Aval"
-            >
-              &times;
-            </button>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <input
-                name="dniAval"
-                value={aval.dniAval}
-                onChange={(e) => handleAvalChange(e, index)}
-                placeholder="DNI del Aval"
-                className="input-style"
-              />
-              <input
-                name="nombresAval"
-                value={aval.nombresAval}
-                onChange={(e) => handleAvalChange(e, index)}
-                placeholder="Nombres"
-                className="input-style"
-              />
-               <input
-                name="apellidoPaternoAval"
-                value={aval.apellidoPaternoAval}
-                onChange={(e) => handleAvalChange(e, index)}
-                placeholder="Apellido Paterno"
-                className="input-style"
-              />
-               <input
-                name="telefonoMovilAval"
-                value={aval.telefonoMovilAval}
-                onChange={(e) => handleAvalChange(e, index)}
-                placeholder="Teléfono Móvil"
-                className="input-style"
-              />
-               <input
-                name="direccionAval"
-                value={aval.direccionAval}
-                onChange={(e) => handleAvalChange(e, index)}
-                placeholder="Dirección"
-                className="input-style md:col-span-2"
-              />
-              {/* ... resto de campos del aval */}
+          <div key={index} className="bg-slate-50 p-6 rounded-lg border relative shadow-sm">
+            <div className="flex justify-between items-start mb-4">
+                <h3 className="font-bold text-gray-700">Aval #{index + 1}</h3>
+                <button
+                    type="button"
+                    onClick={() => removeAval(index)}
+                    className="text-gray-400 hover:text-red-600 font-bold text-2xl leading-none"
+                    title="Eliminar Aval"
+                >
+                    &times;
+                </button>
+            </div>
+            
+            {/* === CAMBIO: Formulario ahora completo y con etiquetas === */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
+              {/* --- Datos Personales del Aval --- */}
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">DNI del Aval</label>
+                <input name="dniAval" value={aval.dniAval} onChange={(e) => handleAvalChange(e, index)} placeholder="########" className="input-style" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-slate-600 mb-1">Nombres</label>
+                <input name="nombresAval" value={aval.nombresAval} onChange={(e) => handleAvalChange(e, index)} placeholder="Nombres completos" className="input-style" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Apellido Paterno</label>
+                <input name="apellidoPaternoAval" value={aval.apellidoPaternoAval} onChange={(e) => handleAvalChange(e, index)} placeholder="Apellido Paterno" className="input-style" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Apellido Materno</label>
+                <input name="apellidoMaternoAval" value={aval.apellidoMaternoAval} onChange={(e) => handleAvalChange(e, index)} placeholder="Apellido Materno" className="input-style" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Relación con Cliente</label>
+                <input name="relacionClienteAval" value={aval.relacionClienteAval} onChange={(e) => handleAvalChange(e, index)} placeholder="Ej. Padre, Amigo" className="input-style" />
+              </div>
+
+              {/* --- Contacto del Aval --- */}
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Teléfono Móvil</label>
+                <input name="telefonoMovilAval" value={aval.telefonoMovilAval} onChange={(e) => handleAvalChange(e, index)} placeholder="987654321" className="input-style" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Teléfono Fijo <span className="text-slate-400">(Opcional)</span></label>
+                <input name="telefonoFijoAval" value={aval.telefonoFijoAval} onChange={(e) => handleAvalChange(e, index)} placeholder="073123456" className="input-style" />
+              </div>
+              <div className="md:col-span-1"></div> {/* Espacio en blanco para alinear */}
+
+              {/* --- Dirección del Aval --- */}
+              <div className="md:col-span-3">
+                <label className="block text-sm font-medium text-slate-600 mb-1">Dirección</label>
+                <input name="direccionAval" value={aval.direccionAval} onChange={(e) => handleAvalChange(e, index)} placeholder="Dirección completa del aval" className="input-style" />
+              </div>
+              <div className="md:col-span-3">
+                <label className="block text-sm font-medium text-slate-600 mb-1">Referencia de Domicilio</label>
+                <input name="referenciaDomicilioAval" value={aval.referenciaDomicilioAval} onChange={(e) => handleAvalChange(e, index)} placeholder="Referencia del domicilio del aval" className="input-style" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Departamento</label>
+                <input name="departamentoAval" value={aval.departamentoAval} onChange={(e) => handleAvalChange(e, index)} placeholder="Departamento" className="input-style" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Provincia</label>
+                <input name="provinciaAval" value={aval.provinciaAval} onChange={(e) => handleAvalChange(e, index)} placeholder="Provincia" className="input-style" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Distrito</label>
+                <input name="distritoAval" value={aval.distritoAval} onChange={(e) => handleAvalChange(e, index)} placeholder="Distrito" className="input-style" />
+              </div>
             </div>
           </div>
         ))}

@@ -15,17 +15,17 @@ import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { createCliente } from 'services/clienteService';
 
 const initialFormData = {
-  datosPersonales: {
+  datos: {
     nombre: '',
     apellidoPaterno: '',
     apellidoMaterno: '',
     apellidoConyuge: '',
-    estadoCivil: 'SOLTERO/A',
-    sexo: 'M',
+    estadoCivil: '',
+    sexo: '',
     dni: '',
     fechaNacimiento: '',
     fechaCaducidadDni: '',
-    nacionalidad: 'PERUANA',
+    nacionalidad: '',
     residePeru: true,
     nivelEducativo: '',
     profesion: '',
@@ -44,7 +44,6 @@ const initialFormData = {
     referenciaDomicilio: '',
   },
   contactos: {
-    tipo: 'PRINCIPAL',
     telefonoMovil: '',
     telefonoFijo: '',
     correo: '',
