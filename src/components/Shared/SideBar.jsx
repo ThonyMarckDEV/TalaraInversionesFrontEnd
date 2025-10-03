@@ -32,6 +32,13 @@ const Sidebar = () => {
           { name: 'Agregar Cliente', link: '/admin/agregar-cliente' },
           { name: 'Listar Clientes', link: '/admin/listar-clientes' },
         ],
+      },
+      {
+        section: 'Productos',
+        subs: [
+          { name: 'Agregar Producto', link: '/admin/agregar-producto' },
+          { name: 'Listar Producto', link: '/admin/listar-productos' },
+        ],
       }
     ],
     cliente: [
