@@ -4,14 +4,16 @@ import { Bars3Icon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import jwtUtils from 'utilities/Token/jwtUtils';
 import { logout } from 'js/logout';
 import logo from 'assets/img/talara_creditos_inversiones_logo.png';
+import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openSections, setOpenSections] = useState({});
-  const [showConfirm, setShowConfirm] = useState(false);
 
   const refresh_token = jwtUtils.getRefreshTokenFromCookie();
   const rol = refresh_token ? jwtUtils.getUserRole(refresh_token) : null;
+
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -172,29 +174,14 @@ const Sidebar = () => {
 
       </div>
 
-      {/* Confirmation modal */}
+        
+      {/* 💡MODAL ConfirmModal */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-sm">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">
-              ¿Estás seguro/a de cerrar sesión?
-            </h3>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
-              >
-                No
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 rounded bg-red-800 text-white hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                Sí
-              </button>
-            </div>
-          </div>
-        </div>
+          <ConfirmModal
+              message="¿Estás seguro/a de cerrar sesión?"
+              onConfirm={handleLogout}
+              onCancel={() => setShowConfirm(false)}
+          />
       )}
 
 

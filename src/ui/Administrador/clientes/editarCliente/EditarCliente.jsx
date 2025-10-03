@@ -179,7 +179,7 @@ const EditarCliente = () => {
         </div>
 
         <div className="flex justify-end mt-8">
-          <button type="button" onClick={() => navigate('/clientes')} className="px-6 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 mr-4">Cancelar</button>
+          <button type="button" onClick={() => navigate('/admin/listar-clientes')} className="px-6 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 mr-4">Cancelar</button>
           <button type="submit" disabled={loading} className="px-6 py-2 text-white bg-amber-500 rounded-md hover:bg-amber-600 disabled:opacity-50">
             {loading ? 'Guardando...' : 'Guardar Cambios'}
           </button>

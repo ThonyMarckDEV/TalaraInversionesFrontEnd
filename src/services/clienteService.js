@@ -68,3 +68,27 @@ export const updateCliente = async (id, clienteData) => {
   });
   return handleResponse(response);
 };
+
+
+/**
+ * Cambia el estado de un cliente (a inactivo).
+ * @param {number} id - El ID del cliente a actualizar.
+ * @param {number} nuevoEstado - El nuevo valor de estado (0 para Inactivo, 1 para Activo).
+ * @returns {Promise<object>} - El resultado de la operación.
+ */
+export const toggleClienteEstado = async (id, nuevoEstado) => {
+    const url = `${API_BASE_URL}/api/cliente/cambiar-estado/${id}`;
+    
+    // Usamos PATCH para actualizar solo un campo
+    const response = await fetchWithAuth(url, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        // Enviamos el nuevo estado
+        body: JSON.stringify({ estado: nuevoEstado })
+    });
+
+    return handleResponse(response);
+};
