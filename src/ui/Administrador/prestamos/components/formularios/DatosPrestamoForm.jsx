@@ -1,31 +1,22 @@
-// ./components/formularios/DatosPrestamoForm.jsx
+// ./components/formularios/DatosPrestamoForm.jsx 
 
 import React from 'react';
+import ProductoSelect from 'components/Shared/Comboboxes/ProductoSelect';
 
-const DatosPrestamoForm = ({ form, handleChange, errors }) => {
+const DatosPrestamoForm = ({ form, handleChange, errors }) => { 
     return (
         <section>
             <h2 className="text-xl font-semibold text-indigo-700 mb-4">2. Datos del Préstamo</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 
-                {/* Producto */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Producto</label>
-                    <select 
-                        name="id_Producto" 
-                        value={form.id_Producto}
-                        onChange={handleChange}
-                        className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    >
-                        <option value="">Seleccione Producto</option>
-                        {/* Aquí mapearías tus productos cargados del backend */}
-                        <option value="1">Microcrédito</option>
-                        <option value="2">Hipotecario</option>
-                    </select>
-                    {errors.id_Producto && <p className="text-red-500 text-xs mt-1">{errors.id_Producto}</p>}
-                </div>
+                {/* Producto usando el componente encapsulado ProductoSelect */}
+                <ProductoSelect
+                    value={form.id_Producto}
+                    onChange={handleChange}
+                    errors={errors}
+                />
 
-                {/* Abono Por */}
+                {/* Abono Por (Mantenemos el Select simple aquí si no es reutilizable) */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Abonado Por</label>
                     <select 
@@ -62,8 +53,8 @@ const DatosPrestamoForm = ({ form, handleChange, errors }) => {
                     <input 
                         type="number" 
                         name="interes" 
-                        value={form.interes * 100} // Mostrar como porcentaje para el usuario
-                        onChange={(e) => handleChange({ target: { name: 'interes', value: e.target.value / 100 } })} // Guardar como decimal
+                        value={form.interes * 100} 
+                        onChange={(e) => handleChange({ target: { name: 'interes', value: e.target.value / 100 } })} 
                         min="0"
                         step="0.01"
                         className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
