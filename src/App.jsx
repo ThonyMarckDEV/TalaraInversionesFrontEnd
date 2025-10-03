@@ -23,7 +23,7 @@ import Home from 'ui/home/Home';
 
 // UIS ADMIN
 import AgregarCliente from 'ui/Administrador/clientes/agregarClientes/AgregarCliente';
-
+import ListarClientes from 'ui/Administrador/clientes/listarClientes/ListarClientes';
 
 // UIS CLIENTE
 
@@ -59,8 +59,8 @@ function AppContent() {
 
         {/* Ruta Agregar Cliente */}
         <Route path="agregar-cliente" element={<AgregarCliente />} />
-
-      
+        {/* Ruta Listar Cliente */}
+        <Route path="listar-clientes" element={<ListarClientes />} />
 
       </Route>
 

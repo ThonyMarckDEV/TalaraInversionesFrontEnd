@@ -23,3 +23,22 @@ export const createCliente = async (clienteData) => {
 
   return handleResponse(response);
 };
+
+
+/**
+ * Obtiene una lista paginada de clientes desde el backend.
+ * @param {number} page - El número de página a solicitar.
+ * @returns {Promise<object>} - La respuesta paginada del backend.
+ */
+export const getClientes = async (page = 1) => {
+  const url = `${API_BASE_URL}/api/clientes/index?page=${page}`;
+
+  const response = await fetchWithAuth(url, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json'
+    },
+  });
+
+  return handleResponse(response);
+};
