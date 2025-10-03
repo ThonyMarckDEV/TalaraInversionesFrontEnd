@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Bars3Icon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import jwtUtils from 'utilities/Token/jwtUtils';
 import { logout } from 'js/logout';
-import ficsullanalogo from 'assets/img/Logo_FICSULLANA.png';
+import logo from 'assets/img/talara_creditos_inversiones_logo.png';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -137,7 +137,7 @@ const Sidebar = () => {
     <>
       {/* Hamburger button for mobile */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-red-500"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-red-800"
         onClick={() => setIsOpen(!isOpen)}
       >
         <Bars3Icon className="h-6 w-6 text-gray-800" />
@@ -152,21 +152,21 @@ const Sidebar = () => {
         {/* Top half: White with image */}
         <div className="h-1/4 bg-white flex items-center justify-center">
           <img
-            src={ficsullanalogo}
+            src={logo}
             alt="Logo"
             className="h-60 w-auto"
           />
         </div>
 
         {/* Bottom half: Red with menu */}
-        <div className="h-3/4 bg-red-500 overflow-y-auto p-4 flex flex-col">
+        <div className="h-3/4 bg-red-800 overflow-y-auto p-4 flex flex-col">
           <nav className="space-y-2 flex-grow">
             {roleMenu.map((item, index) => (
               <div key={index}>
                 {item.subs ? (
                   <>
                     <button
-                      className="w-full flex items-center justify-between text-white py-2 px-4 rounded-md hover:bg-red-600 transition focus:outline-none"
+                      className="w-full flex items-center justify-between text-white py-2 px-4 rounded-md hover:bg-red-900 transition focus:outline-none"
                       onClick={() => toggleSection(item.section)}
                     >
                       <span>{item.section}</span>
@@ -182,7 +182,7 @@ const Sidebar = () => {
                           <li key={subIndex}>
                             <Link
                               to={sub.link}
-                              className="block text-white py-1 px-4 rounded-md hover:bg-red-600 transition"
+                              className="block text-white py-1 px-4 rounded-md hover:bg-red-900 transition"
                               onClick={() => setIsOpen(false)}
                             >
                               {sub.name}
@@ -195,7 +195,7 @@ const Sidebar = () => {
                 ) : (
                   <Link
                     to={item.link}
-                    className="block text-white py-2 px-4 rounded-md hover:bg-red-600 transition"
+                    className="block text-white py-2 px-4 rounded-md hover:bg-red-900 transition"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.section}
@@ -209,7 +209,7 @@ const Sidebar = () => {
           <div className="mt-auto p-4 border-t border-red-700">
             <button
               onClick={() => setShowConfirm(true)}
-              className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full flex items-center justify-center gap-2 bg-red-900 hover:bg-red-700 text-white px-4 py-2 rounded-md transition focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               Cerrar Sesión
             </button>
