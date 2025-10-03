@@ -33,6 +33,8 @@ import AgregarEmpleado from 'ui/Administrador/empleados/agregarEmpleados/Agregar
 import ListarEmpleados from 'ui/Administrador/empleados/listarEmpleados/ListarEmpleados';
 import EditarEmpleado from 'ui/Administrador/empleados/editarEmpleados/EditarEmpleado';
 
+import AgregarPrestamo from 'ui/Administrador/prestamos/agregarPrestamo/AgregarPrestamo';
+
 // UIS CLIENTE
 
 
@@ -88,6 +90,12 @@ function AppContent() {
         <Route path="agregar-producto" element={<AgregarProducto />} />
         {/* Ruta Listar Cliente */}
         <Route path="listar-productos" element={<ListarProductos />} />
+
+      {/* RUTAS PRESTAMOS */}
+        {/* Ruta Agregar Producto */}
+        <Route path="agregar-prestamo" element={<AgregarPrestamo />} />
+        {/* Ruta Listar Cliente */}
+        {/* <Route path="listar-prestamos" element={<ListarPrestamos />} /> */}
 
       </Route>
 

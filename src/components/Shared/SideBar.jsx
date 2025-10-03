@@ -30,7 +30,14 @@ const menus = {
                 { name: 'Agregar Producto', link: '/admin/agregar-producto' },
                 { name: 'Listar Producto', link: '/admin/listar-productos' },
             ],
-        }
+        },
+        {
+            section: 'Prestamos',
+            subs: [
+                { name: 'Agregar Prestamo', link: '/admin/agregar-prestamo' },
+                { name: 'Listar Prestamo', link: '/admin/listar-prestamos' },
+            ],
+        },
     ],
     cliente: [
         { section: 'Home', link: '/cliente' },
