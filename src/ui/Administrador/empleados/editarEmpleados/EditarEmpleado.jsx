@@ -9,177 +9,194 @@ import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 
 const EditarEmpleado = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [form, setForm] = useState(null); 
-    const [loading, setLoading] = useState(true);
-    const [alert, setAlert] = useState(null);
-    const [errors, setErrors] = useState({});
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [form, setForm] = useState(null); 
+    const [loading, setLoading] = useState(true);
+    const [alert, setAlert] = useState(null);
+    const [errors, setErrors] = useState({});
 
-    // Función para mapear datos anidados a un formulario plano (estable con useCallback)
-    const mapEmpleadoToForm = useCallback((empleado) => {
-        // 🔧 FIX: Acceder a la estructura real del response del backend {type, message, data: {empleado}}
-        const rawEmpleado = empleado?.data || empleado; // Si el service ya extrae .data, fallback a empleado directo
-        const datos = rawEmpleado?.datos || {}; 
+    // Función para mapear datos anidados a un formulario plano (estable con useCallback)
+    const mapEmpleadoToForm = useCallback((empleado) => {
+        // 🔧 FIX: Acceder a la estructura real del response del backend {type, message, data: {empleado}}
+        const rawEmpleado = empleado?.data || empleado; // Si el service ya extrae .data, fallback a empleado directo
+        const datos = rawEmpleado?.datos || {}; 
 
-        return {
-            ...datos, // Propiedades de datos (nombre, dni, etc.)
-            id_Rol: rawEmpleado?.id_Rol || '', // Rol
-            
-            // Conversión de 0/1 a booleanos de JavaScript. Usamos 'datos' de la línea 27.
-            residePeru: datos.residePeru === 1,
-            enfermedadesPreexistentes: datos.enfermedadesPreexistentes === 1,
-            expuestaPoliticamente: datos.expuestaPoliticamente === 1,
+        return {
+            ...datos, // Propiedades de datos (nombre, dni, etc.)
+            id_Rol: rawEmpleado?.id_Rol || '', // Rol
+            
+            // Conversión de 0/1 a booleanos de JavaScript. Usamos 'datos' de la línea 27.
+            residePeru: datos.residePeru === 1,
+            enfermedadesPreexistentes: datos.enfermedadesPreexistentes === 1,
+            expuestaPoliticamente: datos.expuestaPoliticamente === 1,
 
-            username: rawEmpleado?.username || '',
-        };
-    }, []);
+            username: rawEmpleado?.username || '',
+        };
+    }, []);
 
-     // Cargar datos del empleado
-    useEffect(() => {
-        const loadEmpleado = async () => {
-            setLoading(true);
-            try {
-                const response = await getEmpleadoById(id);
+     // Cargar datos del empleado
+    useEffect(() => {
+        const loadEmpleado = async () => {
+            setLoading(true);
+            try {
+                const response = await getEmpleadoById(id);
+                
+                // 🔧 FIX: Extraer el empleado real del wrapper del response
+                const empleado = response?.data || response; // Si service ya hace return res.data, usa response directo
+                
+                // 🛑 Verificación de seguridad ajustada a la estructura real
+                if (!empleado || !empleado.datos) {
+                    throw new Error("La estructura de datos del empleado es incorrecta.");
+                }
+                
+                setForm(mapEmpleadoToForm(response)); // Pasamos el response full al mapper
+                setAlert(null); 
+            } catch (err) {
+                // 🔑 Manejo de errores mejorado para API responses
+                let message = 'Error desconocido al cargar empleado.';
+                if (err.response?.data?.message) {
+                    message = err.response.data.message;
+                } else if (err.message) {
+                    message = err.message;
+                } else if (err.details) {
+                    message = err.details;
+                }
+                
+                console.error("Error al cargar el empleado:", err);
+                
+                setAlert({ type: 'error', message: message, details: err.response?.data });
+                
+                // Redirigir si es error de carga
+                setTimeout(() => {
+                    navigate('/admin/listar-empleados');
+                }, 3000);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        if (id) {
+            loadEmpleado();
+        }
+    }, [id, navigate, mapEmpleadoToForm]);
+
+    // ... (El resto del componente, handleChange, handleCheckboxChange son correctos)
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm(prev => ({ ...prev, [name]: value }));
+        setErrors(prev => ({ ...prev, [name]: null }));
+    };
+
+    const handleCheckboxChange = (e) => {
+        const { name, checked } = e.target;
+        setForm(prev => ({ ...prev, [name]: checked }));
+        setErrors(prev => ({ ...prev, [name]: null }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setErrors({});
+        setAlert(null);
+
+        try {
+             const dataToSend = {
+                ...form,
+                // Asegura que los booleanos se envíen como 1 o 0
+                residePeru: form.residePeru ? 1 : 0,
+                enfermedadesPreexistentes: form.enfermedadesPreexistentes ? 1 : 0,
+                expuestaPoliticamente: form.expuestaPoliticamente ? 1 : 0,
+                // El username no debe enviarse en la actualización
+                username: undefined, 
+                
+                // 🔑 Envía password y confirmation SOLO si tienen valor
+                password: form.password && form.password.length > 0 ? form.password : undefined, 
+                password_confirmation: form.password_confirmation && form.password_confirmation.length > 0 ? form.password_confirmation : undefined, 
+            };
+            
+            // Eliminar propiedades undefined antes de enviar
+            Object.keys(dataToSend).forEach(key => dataToSend[key] === undefined && delete dataToSend[key]);
+            
+            const response = await updateEmpleado(id, dataToSend);
+            
+            // 🚀 REDIRECCIÓN CLAVE: Si la respuesta es exitosa (asumiendo response.type === 'success' o HTTP 200)
+            if (response.type === 'success') {
+                // Muestra un mensaje temporal de éxito antes de redirigir
+                setAlert(response);
                 
-                // 🔧 FIX: Extraer el empleado real del wrapper del response
-                const empleado = response?.data || response; // Si service ya hace return res.data, usa response directo
-                
-                // 🔍 DEBUG opcional: console.log('Response full:', response);
-                // console.log('Empleado extraído:', empleado);
-                
-                // 🛑 Verificación de seguridad ajustada a la estructura real
-                if (!empleado || !empleado.datos) {
-                    throw new Error("La estructura de datos del empleado es incorrecta.");
-                }
-                
-                setForm(mapEmpleadoToForm(response)); // Pasamos el response full al mapper
-                setAlert(null); 
-            } catch (err) {
-                // 🔑 Manejo de errores mejorado para API responses
-                let message = 'Error desconocido al cargar empleado.';
-                if (err.response?.data?.message) {
-                    message = err.response.data.message;
-                } else if (err.message) {
-                    message = err.message;
-                } else if (err.details) {
-                    message = err.details;
-                }
-                
-                console.error("Error al cargar el empleado:", err);
-                
-                setAlert({ type: 'error', message: message, details: err.response?.data });
-                
-                // Redirigir si es error de carga
+                // 🛑 Redirigir al usuario a la lista de empleados después de un breve retraso
                 setTimeout(() => {
                     navigate('/admin/listar-empleados');
-                }, 3000);
-            } finally {
+                }, 1000); 
+                
+            } else {
+                setAlert(response);
+            }
+            
+        } catch (err) {
+            // Manejo de errores de validación y API
+            if (err.errors || err.response?.data?.errors) {
+                setErrors(err.errors || err.response.data.errors);
+            }
+            let alertErr = { type: 'error', message: err.message || 'Error al actualizar empleado.' };
+            if (err.response?.data?.message) {
+                alertErr.message = err.response.data.message;
+                alertErr.details = err.response.data;
+            }
+            setAlert(alertErr);
+        } finally {
+            // Solo dejamos de cargar si no hubo una redirección inminente.
+            // Si hubo éxito, setTimeout se encargará.
+            if (alert?.type !== 'success') {
                 setLoading(false);
             }
-        };
-        
-        if (id) {
-            loadEmpleado();
-        }
-    }, [id, navigate, mapEmpleadoToForm]);
+        }
+    };
+    
+    if (loading || form === null) return <LoadingScreen />;
 
-    // ... (El resto del componente, handleChange, handleCheckboxChange, handleSubmit, y renderizado, permanece igual)
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }));
-        setErrors(prev => ({ ...prev, [name]: null }));
-    };
+    return (
+        <div className="container mx-auto p-6 bg-gray-50">
+            <h1 className="text-3xl font-bold text-slate-800 mb-8">Editar Empleado #{id}</h1>
 
-    const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
-        setForm(prev => ({ ...prev, [name]: checked }));
-        setErrors(prev => ({ ...prev, [name]: null }));
-    };
+            <AlertMessage
+                type={alert?.type}
+                message={alert?.message}
+                details={alert?.details}
+                onClose={() => setAlert(null)}
+            />
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setErrors({});
-        setAlert(null);
+            <form onSubmit={handleSubmit} className="bg-white p-6 shadow-xl rounded-lg space-y-8">
+                <EmpleadoForm 
+                    form={form} 
+                    handleChange={handleChange} 
+                    handleCheckboxChange={handleCheckboxChange}
+                    errors={errors}
+                />
+                
+                <hr className="border-t border-gray-200" />
+                
+                {/* En edición, se habilita la edición opcional de contraseña y rol */}
+                <DatosAccesoForm
+                    form={form}
+                    handleChange={handleChange}
+                    errors={errors}
+                    isEditing={true} 
+                />
 
-        try {
-             const dataToSend = {
-                ...form,
-                // Asegura que los booleanos se envíen como 1 o 0
-                residePeru: form.residePeru ? 1 : 0,
-                enfermedadesPreexistentes: form.enfermedadesPreexistentes ? 1 : 0,
-                expuestaPoliticamente: form.expuestaPoliticamente ? 1 : 0,
-                // Eliminamos los campos de acceso que no deben actualizarse
-                username: undefined, 
-                password: undefined, 
-                password_confirmation: undefined, 
-            };
-            
-            // Eliminar propiedades undefined antes de enviar
-            Object.keys(dataToSend).forEach(key => dataToSend[key] === undefined && delete dataToSend[key]);
-            
-            const response = await updateEmpleado(id, dataToSend);
-            setAlert(response); 
-            
-        } catch (err) {
-            if (err.errors || err.response?.data?.errors) {
-                setErrors(err.errors || err.response.data.errors);
-            }
-            let alertErr = { type: 'error', message: err.message || 'Error al actualizar empleado.' };
-            if (err.response?.data?.message) {
-                alertErr.message = err.response.data.message;
-                alertErr.details = err.response.data;
-            }
-            setAlert(alertErr);
-        } finally {
-            setLoading(false);
-        }
-    };
-    
-    if (loading || form === null) return <LoadingScreen />;
-
-    return (
-        <div className="container mx-auto p-6 bg-gray-50">
-            <h1 className="text-3xl font-bold text-slate-800 mb-8">Editar Empleado #{id}</h1>
-
-            <AlertMessage
-                type={alert?.type}
-                message={alert?.message}
-                details={alert?.details}
-                onClose={() => setAlert(null)}
-            />
-
-            <form onSubmit={handleSubmit} className="bg-white p-6 shadow-xl rounded-lg space-y-8">
-                <EmpleadoForm 
-                    form={form} 
-                    handleChange={handleChange} 
-                    handleCheckboxChange={handleCheckboxChange}
-                    errors={errors}
-                />
-                
-                <hr className="border-t border-gray-200" />
-                
-                {/* En edición, solo se permite cambiar el rol */}
-                <DatosAccesoForm
-                    form={form}
-                    handleChange={handleChange}
-                    errors={errors}
-                    isEditing={true} // Oculta campos de acceso
-                />
-
-                <div className="flex justify-end pt-4 border-t">
-                    <button
-                        type="submit"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition duration-150 disabled:bg-gray-400"
-                        disabled={loading}
-                    >
-                        {loading ? 'Actualizando...' : 'Actualizar Datos'}
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
+                <div className="flex justify-end pt-4 border-t">
+                    <button
+                        type="submit"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition duration-150 disabled:bg-gray-400"
+                        disabled={loading}
+                    >
+                        {loading ? 'Actualizando...' : 'Actualizar Datos'}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
 };
 
 export default EditarEmpleado;
