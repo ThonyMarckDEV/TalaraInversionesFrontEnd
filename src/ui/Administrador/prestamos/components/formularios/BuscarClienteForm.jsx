@@ -5,7 +5,7 @@ import React from 'react';
 const BuscarClienteForm = ({ dni, clienteNombre, handleChange, handleSearchCliente, loading, errors }) => {
     return (
         <section>
-            <h2 className="text-xl font-semibold text-indigo-700 mb-4">1. Búsqueda y Selección de Cliente</h2>
+            <h2 className="text-xl font-semibold text-red-800 mb-4">1. Búsqueda y Selección de Cliente</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
                 {/* Input DNI */}
                 <div>
@@ -27,7 +27,7 @@ const BuscarClienteForm = ({ dni, clienteNombre, handleChange, handleSearchClien
                         type="button" 
                         onClick={handleSearchCliente}
                         disabled={loading || dni.length !== 8}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 disabled:bg-gray-400"
+                        className="w-full bg-red-800 hover:bg-red-900 text-white font-bold py-2 px-4 rounded-md transition duration-150 disabled:bg-gray-400"
                     >
                         {loading ? 'Buscando...' : 'Buscar Cliente'}
                     </button>

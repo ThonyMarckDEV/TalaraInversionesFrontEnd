@@ -1,16 +1,15 @@
-// src/pages/Prestamos/AgregarPrestamo.jsx (CORREGIDO FINAL)
+// src/pages/Prestamos/AgregarPrestamo.jsx (ACTUALIZADO CON COMPONENTE REUTILIZABLE)
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Importamos los formularios por sección
-import BuscarClienteForm from '../components/formularios/BuscarClienteForm';
+
+import ClienteSearchSelect from 'components/Shared/Comboboxes/ClienteSearchSelect';
 import DatosPrestamoForm from '../components/formularios/DatosPrestamoForm';
 import ResultadosCalculo from '../components/formularios/ResultadosCalculo';
 import FrecuenciaAsesorForm from '../components/formularios/FrecuenciaAsesorForm';
 
 // Importamos servicios
 import { createPrestamo } from 'services/prestamoService';
-import { showCliente } from 'services/clienteService';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 
@@ -53,42 +52,7 @@ const AgregarPrestamo = () => {
         setErrors(prev => ({ ...prev, [name]: null }));
     };
 
-    // FUNCIÓN DE BÚSQUEDA DE CLIENTE POR DNI
-    const handleSearchCliente = async () => {
-        const dni = form.clienteDni.trim();
-        // Validar DNI/RUC (permitiendo 8 o más dígitos)
-        if (!dni || dni.length < 8) { 
-            setErrors(prev => ({ ...prev, clienteDni: 'El DNI o RUC debe tener 8 o más dígitos.' }));
-            return;
-        }
-
-        setLoading(true);
-        setClienteData(null); 
-        
-        try {
-            const response = await showCliente(dni); 
-            const cliente = response.data; // Extraer el objeto 'data'
-            
-            const nombreCompleto = `${cliente.datos.nombre} ${cliente.datos.apellidoPaterno} ${cliente.datos.apellidoMaterno}`.trim();
-            
-            // Actualizar el estado con la data correcta del cliente
-            setClienteData(cliente); 
-            setForm(prev => ({ 
-                ...prev, 
-                id_Cliente: cliente.id, 
-                clienteNombre: nombreCompleto
-            }));
-
-            setAlert({ type: 'success', message: `Cliente ${nombreCompleto} encontrado y seleccionado.` });
-            
-        } catch (err) {
-            setAlert({ type: 'error', message: err.message || 'Error al buscar cliente.' });
-            setClienteData(null);
-            setForm(prev => ({ ...prev, id_Cliente: null, clienteNombre: '' }));
-        } finally {
-            setLoading(false);
-        }
-    };
+    // ELIMINADA: La función handleSearchCliente se movió a ClienteSearchSelect.jsx
 
     // FUNCIÓN DE CÁLCULO
     const calcularPrestamo = useCallback(() => {
@@ -121,8 +85,8 @@ const AgregarPrestamo = () => {
         setErrors({});
         setAlert(null);
 
-        // Validar que el cliente esté seleccionado y el cálculo sea válido
-        if (!form.id_Cliente || totalPagar <= 0 || !clienteData) { 
+        // Validar que el cliente esté seleccionado (usando form.id_Cliente)
+        if (!form.id_Cliente || totalPagar <= 0) { 
             setAlert({ type: 'error', message: 'Debe seleccionar un cliente y configurar el préstamo correctamente.' });
             setLoading(false);
             return;
@@ -130,7 +94,6 @@ const AgregarPrestamo = () => {
 
         try {
             // CORRECCIÓN CLAVE: Usar desestructuración para excluir las claves de la UI
-            // Extraemos las claves que NO deben ir al backend (clienteDni, clienteNombre)
             const { clienteDni, clienteNombre, ...dataToSubmit } = form;
 
             const dataToSend = {
@@ -150,7 +113,7 @@ const AgregarPrestamo = () => {
             
             setAlert({ type: 'success', message: response.message || 'Préstamo creado con éxito.' });
             setForm(initialFormState); 
-            setClienteData(null);
+            // Eliminamos setClienteData(null) ya que ya no lo usamos para la búsqueda
             
             setTimeout(() => navigate('/admin/listar-prestamos'), 2000); 
 
@@ -164,7 +127,7 @@ const AgregarPrestamo = () => {
         }
     };
 
-    if (loading && !clienteData) return <LoadingScreen />;
+    if (loading && !form.id_Cliente) return <LoadingScreen />;
 
     return (
         <div className="container mx-auto p-6 bg-gray-50">
@@ -179,14 +142,12 @@ const AgregarPrestamo = () => {
 
             <form onSubmit={handleSubmit} className="bg-white p-6 shadow-xl rounded-lg space-y-8">
                 
-                {/* ---------------- SECCIÓN 1: BUSCAR CLIENTE ---------------- */}
-                <BuscarClienteForm 
-                    dni={form.clienteDni} // Usa la clave corregida
-                    clienteNombre={form.clienteNombre} // Usa la clave corregida
-                    handleChange={handleChange}
-                    handleSearchCliente={handleSearchCliente}
-                    loading={loading}
-                    errors={errors}
+                {/* ---------------- SECCIÓN 1: BUSCAR CLIENTE (USANDO EL REUTILIZABLE) ---------------- */}
+                <ClienteSearchSelect 
+                    form={{ ...form, errors }} // Pasamos el form y los errores
+                    setForm={setForm}
+                    setAlert={setAlert}
+                    setErrors={setErrors}
                 />
                 
                 <hr className="border-t border-gray-200" />
@@ -218,7 +179,7 @@ const AgregarPrestamo = () => {
                 <div className="flex justify-end pt-4 border-t">
                     <button 
                         type="button" 
-                        onClick={() => { setForm(initialFormState); setClienteData(null); setAlert(null); }}
+                        onClick={() => { setForm(initialFormState); setAlert(null); }}
                         className="px-8 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 font-bold mr-2 transition duration-150"
                     >
                         Cancelar
