@@ -98,6 +98,13 @@ const AgregarEmpleado = () => {
                 />
 
                 <div className="flex justify-end pt-4 border-t">
+                    <button 
+                        type="button" 
+                        onClick={() => setForm(initialFormState)} // Resetear formulario
+                        className="px-8 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 font-bold mr-2 transition duration-150"
+                    >
+                        Cancelar
+                    </button>
                     <button
                         type="submit"
                         className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition duration-150 disabled:bg-gray-400"
