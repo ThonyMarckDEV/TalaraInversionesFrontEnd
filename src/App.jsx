@@ -26,6 +26,10 @@ import AgregarCliente from 'ui/Administrador/clientes/agregarClientes/AgregarCli
 import ListarClientes from 'ui/Administrador/clientes/listarClientes/ListarClientes';
 import EditarCliente from 'ui/Administrador/clientes/editarCliente/EditarCliente';
 
+import AgregarProducto from 'ui/Administrador/productos/agregarProductos/AgregarProductos';
+import ListarProductos from 'ui/Administrador/productos/listarProductos/ListarProductos';
+
+
 // UIS CLIENTE
 
 
@@ -58,12 +62,19 @@ function AppContent() {
         {/* Ruta Home (cuando solo pones /admin) */}
         <Route index element={<Home />} />
 
+      {/* RUTAS CLIENTE */}
         {/* Ruta Agregar Cliente */}
         <Route path="agregar-cliente" element={<AgregarCliente />} />
         {/* Ruta Listar Cliente */}
         <Route path="listar-clientes" element={<ListarClientes />} />
         {/* Ruta Editar Cliente */}
         <Route path="editar-cliente/:id" element={<EditarCliente />} />
+
+      {/* RUTAS PRODUCTO */}
+        {/* Ruta Agregar Producto */}
+        <Route path="agregar-producto" element={<AgregarProducto />} />
+        {/* Ruta Listar Cliente */}
+        <Route path="listar-productos" element={<ListarProductos />} />
 
       </Route>
 

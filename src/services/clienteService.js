@@ -9,7 +9,7 @@ import { handleResponse } from 'utilities/Responses/handleResponse';
  */
 export const createCliente = async (clienteData) => {
   // El endpoint que crearemos en Laravel
-  const url = `${API_BASE_URL}/api/cliente/create`;
+  const url = `${API_BASE_URL}/api/cliente/store`;
 
   const response = await fetchWithAuth(url, {
     method: 'POST',

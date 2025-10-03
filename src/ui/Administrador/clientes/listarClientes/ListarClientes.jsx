@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'; // 💡 Importar useCallback
 // 💡 IMPORTAR la nueva función
 import { getClientes, toggleClienteEstado } from 'services/clienteService'; 
-import Pagination from '../components/Pagination';
+import Pagination from 'components/Shared/Pagination';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import { Link } from 'react-router-dom';
 
