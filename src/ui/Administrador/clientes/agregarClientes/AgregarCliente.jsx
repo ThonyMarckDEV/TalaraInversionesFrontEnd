@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 
 // Importación de los componentes del formulario
-import ClienteForm from './components/formularios/ClienteForm';
-import DireccionesForm from './components/formularios/DireccionesForm';
-import ContactosForm from './components/formularios/ContactosForm';
-import EmpleoForm from './components/formularios/EmpleoForm';
-import CuentasBancariasForm from './components/formularios/CuentasBancariasForm';
-import AvalesForm from './components/formularios/AvalesForm';
+import ClienteForm from '../components/formularios/ClienteForm';
+import DireccionesForm from '../components/formularios/DireccionesForm';
+import ContactosForm from '../components/formularios/ContactosForm';
+import EmpleoForm from '../components/formularios/EmpleoForm';
+import CuentasBancariasForm from '../components/formularios/CuentasBancariasForm';
+import AvalesForm from '../components/formularios/AvalesForm';
 
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 

@@ -42,3 +42,29 @@ export const getClientes = async (page = 1) => {
 
   return handleResponse(response);
 };
+
+
+/**
+ * Obtiene toda la información de un cliente por su ID.
+ */
+export const showCliente = async (id) => {
+  const url = `${API_BASE_URL}/api/cliente/show/${id}`;
+  const response = await fetchWithAuth(url, { method: 'GET' });
+  return handleResponse(response);
+};
+
+/**
+ * Envía los datos actualizados de un cliente al backend.
+ */
+export const updateCliente = async (id, clienteData) => {
+  const url = `${API_BASE_URL}/api/cliente/update/${id}`;
+  const response = await fetchWithAuth(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(clienteData)
+  });
+  return handleResponse(response);
+};

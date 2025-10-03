@@ -1,6 +1,7 @@
 import React from 'react';
 
 const ClienteForm = ({ data, handleChange }) => {
+
   return (
     <div>
       <h2 className="text-xl font-semibold text-slate-700 mb-6 border-b pb-2">1. Datos Personales</h2>

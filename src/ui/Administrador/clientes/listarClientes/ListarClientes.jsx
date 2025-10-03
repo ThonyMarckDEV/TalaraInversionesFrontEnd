@@ -1,8 +1,9 @@
 // src/pages/clientes/ListarCliente.jsx
 import React, { useState, useEffect } from 'react';
 import { getClientes } from 'services/clienteService';
-import Pagination from './components/Pagination';
+import Pagination from '../components/Pagination';
 import LoadingScreen from 'components/Shared/LoadingScreen';
+import { Link } from 'react-router-dom';
 
 const ListarCliente = () => {
   const [clientes, setClientes] = useState([]);
@@ -86,8 +87,13 @@ const ListarCliente = () => {
                     </span>
                     </td>
                     <td className="px-5 py-4 text-sm">
-                    <button className="text-indigo-600 hover:text-indigo-900 mr-4">Editar</button>
-                    <button className="text-red-600 hover:text-red-900">Ver</button>
+                      <Link 
+                        to={`/admin/editar-cliente/${cliente.id}`} 
+                        className="text-indigo-600 hover:text-indigo-900 mr-4"
+                      >
+                        Editar
+                      </Link>
+                      <button className="text-red-600 hover:text-red-900">Ver</button>
                     </td>
                 </tr>
                 ))
