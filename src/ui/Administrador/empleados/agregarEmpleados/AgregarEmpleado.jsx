@@ -107,7 +107,7 @@ const AgregarEmpleado = () => {
                     </button>
                     <button
                         type="submit"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition duration-150 disabled:bg-gray-400"
+                        className="bg-red-800 hover:bg-red-900 text-white font-bold py-2 px-6 rounded-lg transition duration-150 disabled:bg-gray-400"
                         disabled={loading}
                     >
                         {loading ? 'Guardando...' : 'Guardar Empleado'}

@@ -192,7 +192,7 @@ const EditarEmpleado = () => {
                     </button>
                     <button
                         type="submit"
-                        className="px-8 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md transition duration-150 disabled:bg-gray-400"
+                        className="px-8 py-2 bg-red-800 hover:bg-red-900 text-white font-bold rounded-md transition duration-150 disabled:bg-gray-400"
                         disabled={loading}
                     >
                         {loading ? 'Actualizando...' : 'Actualizar Datos'}
