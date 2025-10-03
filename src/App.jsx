@@ -44,6 +44,7 @@ import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
 import ProtectedRouteCliente from 'utilities/ProtectedRoutes/ProtectedRouteCliente';
 import ProtectedRouteAsesor from 'utilities/ProtectedRoutes/ProtectedRouteAsesor';
 import ProtectedRouteAdmin from 'utilities/ProtectedRoutes/ProtectedRouteAdmin';
+import ProtectedRouteCajero from 'utilities/ProtectedRoutes/ProtectedRouteCajero';
 
 
 function AppContent() {
@@ -121,6 +122,18 @@ function AppContent() {
       </Route>
 
 
+      {/* RUTAS CAJERO */}
+      <Route
+        path="/cajero"
+        element={
+          <ProtectedRouteCajero element={<SidebarLayout />} />
+        }
+      >
+        {/* Ruta Home (cuando solo pones /cajero) */}
+        <Route index element={<Home />} />
+
+
+      </Route>
 
 
       {/* Ruta de error */}

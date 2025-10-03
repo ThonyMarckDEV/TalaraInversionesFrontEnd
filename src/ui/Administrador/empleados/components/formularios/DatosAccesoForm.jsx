@@ -7,8 +7,9 @@ const DatosAccesoForm = ({ form, handleChange, errors, isEditing }) => {
         <div className="space-y-6">
             <h2 className="text-xl font-semibold mb-4 text-slate-800">Datos de Acceso</h2>
             
-            {/* Sección de Rol (siempre visible) */}
+            {/* Sección básica: Rol y Username */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Campo Rol (Siempre editable) */}
                 <div>
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="id_Rol">
                         Rol <span className="text-red-500">*</span>
@@ -21,43 +22,38 @@ const DatosAccesoForm = ({ form, handleChange, errors, isEditing }) => {
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                         <option value="">Seleccione Rol</option>
-                        <option value={4}>Asesor</option>
-                        <option value={5}>Cajero</option> 
+                        <option value={3}>Asesor</option>
+                        <option value={4}>Cajero</option> 
                     </select>
                     {errors.id_Rol && <p className="text-red-500 text-xs italic mt-1">{errors.id_Rol}</p>}
                 </div>
 
-                {/* Username solo para agregar nuevo (no en edición) */}
-                {!isEditing && (
-                    <div>
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-                            Username <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            id="username"
-                            type="text"
-                            name="username"
-                            value={form.username || ''}
-                            onChange={handleChange}
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Nombre de usuario"
-                        />
-                        {errors.username && <p className="text-red-500 text-xs italic mt-1">{errors.username}</p>}
-                    </div>
-                )}
+                {/* Username: Siempre editable */}
+                <div>
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                        Username <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        id="username"
+                        type="text"
+                        name="username"
+                        value={form.username || ''}
+                        onChange={handleChange}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Nombre de usuario"
+                    />
+                    {errors.username && <p className="text-red-500 text-xs italic mt-1">{errors.username}</p>}
+                </div>
             </div>
 
-            {/* Separador si hay campos de contraseña */}
-            {(isEditing || !isEditing) && (form.password !== undefined || !isEditing) && (
-                <hr className="border-t border-gray-200" />
-            )}
+            <hr className="border-t border-gray-200" />
 
-            {/* Campos de Contraseña */}
+            {/* Sección de Contraseñas: Siempre visible, pero ajustada por modo */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Password */}
                 <div>
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-                        {isEditing ? 'Nueva Contraseña (Opcional)' : 'Contraseña'} <span className={!isEditing ? 'text-red-500' : ''}>*{!isEditing && ' *'}</span>
+                        {isEditing ? 'Nueva Contraseña (Opcional)' : 'Contraseña'} {!isEditing && <span className="text-red-500">*</span>}
                     </label>
                     <input
                         id="password"
@@ -75,7 +71,7 @@ const DatosAccesoForm = ({ form, handleChange, errors, isEditing }) => {
                 {/* Password Confirmation */}
                 <div>
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password_confirmation">
-                        Confirmar Contraseña <span className={!isEditing ? 'text-red-500' : ''}>*{!isEditing && ' *'}</span>
+                        Confirmar Contraseña {!isEditing && <span className="text-red-500">*</span>}
                     </label>
                     <input
                         id="password_confirmation"
