@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 
 // Importación de los componentes del formulario
-import ClienteForm from './components/ClienteForm';
-import DireccionesForm from './components/DireccionesForm';
-import ContactosForm from './components/ContactosForm';
-import EmpleoForm from './components/EmpleoForm';
-import CuentasBancariasForm from './components/CuentasBancariasForm';
-import AvalesForm from './components/AvalesForm';
+import ClienteForm from './components/formularios/ClienteForm';
+import DireccionesForm from './components/formularios/DireccionesForm';
+import ContactosForm from './components/formularios/ContactosForm';
+import EmpleoForm from './components/formularios/EmpleoForm';
+import CuentasBancariasForm from './components/formularios/CuentasBancariasForm';
+import AvalesForm from './components/formularios/AvalesForm';
 
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 
@@ -74,12 +74,10 @@ const AgregarCliente = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState(initialFormData);
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
 
   const handleNext = () => setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
   const handleBack = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
-
-  
-  const [alert, setAlert] = useState(null); // Un solo estado, inicializado en null.
 
   const handleChange = (e, section) => {
     const { name, value, type, checked } = e.target;
@@ -99,8 +97,9 @@ const AgregarCliente = () => {
     }));
   };
 
+  // El "e.preventDefault()" ya no es estrictamente necesario aquí, pero es buena práctica dejarlo.
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault(); // Previene cualquier comportamiento por si acaso
     setLoading(true);
     try {
       const response = await createCliente(formData);
@@ -142,13 +141,12 @@ const AgregarCliente = () => {
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold text-slate-800 mb-4">Registro de Nuevo Cliente</h1>
-
-        <AlertMessage
-            type={alert?.type}
-            message={alert?.message}
-            details={alert?.details}
-            onClose={() => setAlert(null)}
-        />
+      <AlertMessage
+        type={alert?.type}
+        message={alert?.message}
+        details={alert?.details}
+        onClose={() => setAlert(null)}
+      />
       
       {/* Stepper */}
       <div className="mb-8">
@@ -163,7 +161,10 @@ const AgregarCliente = () => {
         </ol>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      {/* =============================================================== */}
+      {/* CAMBIO 1: SE QUITÓ EL onSubmit DE AQUÍ */}
+      {/* =============================================================== */}
+      <form>
         <div className="bg-white p-8 rounded-lg shadow-md">
           {renderFormStep()}
         </div>
@@ -188,8 +189,12 @@ const AgregarCliente = () => {
               Siguiente
             </button>
           ) : (
+            /* =============================================================== */
+            /* CAMBIO 2: EL BOTÓN AHORA ES TIPO "button" Y USA "onClick" */
+            /* =============================================================== */
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               disabled={loading}
               className="px-6 py-2 text-white bg-amber-500 rounded-md hover:bg-amber-600 disabled:opacity-50"
             >
