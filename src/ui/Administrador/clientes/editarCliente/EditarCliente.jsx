@@ -75,7 +75,7 @@ const EditarCliente = () => {
         const datosLimpios = {
             ...initialFormData.datos, // Empezamos con la plantilla
             ...datosApi, // Sobrescribimos con los datos limpios de la API
-            sexo: datosApi.sexo === 'Masculino' ? 'M' : 'F',
+            sexo: datosApi.sexo === 'Masculino' ? 'Masculino' : 'Femenino',
             residePeru: !!datosApi.residePeru,
             enfermedadesPreexistentes: !!datosApi.enfermedadesPreexistentes,
             expuestaPoliticamente: !!datosApi.expuestaPoliticamente,
@@ -121,20 +121,38 @@ const EditarCliente = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setAlert(null);
-    try {
-      const response = await updateCliente(id, formData);
-      setAlert({ type: 'success', message: response.message || 'Cliente actualizado con éxito' });
-      setTimeout(() => navigate('/clientes'), 2000);
-    } catch (err) {
-      setAlert({ type: 'error', message: 'Error al actualizar', details: err.details || err.message });
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setAlert(null);
+        try {
+            const response = await updateCliente(id, formData);
+            setAlert({ type: 'success', message: response.message || 'Cliente actualizado con éxito' });
+            setTimeout(() => navigate('/admin/listar-clientes'), 2000);
+        } catch (err) {
+            let errorDetails = [];
+            
+            // Si err.details existe y es un objeto, extraemos todos los mensajes de error
+            if (err.details && typeof err.details === 'object') {
+                // Esto aplana el objeto de errores de Laravel a un array de mensajes
+                // Por ejemplo: { 'datos.dni': ['El DNI ya existe'], 'contactos.correo': ['Formato inválido'] }
+                // se convierte en ['El DNI ya existe', 'Formato inválido']
+                errorDetails = Object.values(err.details).flat();
+            } else if (err.message) {
+                // Si solo tenemos un mensaje simple, lo envolvemos en un array
+                errorDetails = [err.message];
+            }
+
+            setAlert({ 
+                type: 'error', 
+                message: 'Error al actualizar', 
+                // 🚨 USAMOS errorDetails QUE SIEMPRE ES UN ARRAY 🚨
+                details: errorDetails 
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
 
   if (loading) return <LoadingScreen />;
   if (error) return <div className="text-center p-8 text-red-600">{error}</div>;

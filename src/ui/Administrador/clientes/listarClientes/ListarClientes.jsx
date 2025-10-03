@@ -93,7 +93,7 @@ const ListarCliente = () => {
                       >
                         Editar
                       </Link>
-                      <button className="text-red-600 hover:text-red-900">Ver</button>
+                      {/* <button className="text-red-600 hover:text-red-900">Ver</button> */}
                     </td>
                 </tr>
                 ))
