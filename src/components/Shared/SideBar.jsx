@@ -18,6 +18,13 @@ const menus = {
             ],
         },
         {
+            section: 'Empleados',
+            subs: [
+                { name: 'Agregar Empleado', link: '/admin/agregar-empleado' },
+                { name: 'Listar Empleado', link: '/admin/listar-empleados' },
+            ],
+        },
+        {
             section: 'Productos',
             subs: [
                 { name: 'Agregar Producto', link: '/admin/agregar-producto' },

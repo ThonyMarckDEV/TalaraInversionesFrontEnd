@@ -29,6 +29,9 @@ import EditarCliente from 'ui/Administrador/clientes/editarCliente/EditarCliente
 import AgregarProducto from 'ui/Administrador/productos/agregarProductos/AgregarProductos';
 import ListarProductos from 'ui/Administrador/productos/listarProductos/ListarProductos';
 
+import AgregarEmpleado from 'ui/Administrador/empleados/agregarEmpleados/AgregarEmpleado';
+import ListarEmpleados from 'ui/Administrador/empleados/listarEmpleados/ListarEmpleados';
+import EditarEmpleado from 'ui/Administrador/empleados/editarEmpleados/EditarEmpleado';
 
 // UIS CLIENTE
 
@@ -69,6 +72,15 @@ function AppContent() {
         <Route path="listar-clientes" element={<ListarClientes />} />
         {/* Ruta Editar Cliente */}
         <Route path="editar-cliente/:id" element={<EditarCliente />} />
+
+      {/* RUTAS EMPLEADO */}
+        {/* Ruta Agregar Empleado */}
+        <Route path="agregar-empleado" element={<AgregarEmpleado />} />
+        {/* Ruta Listar Empleado */}
+        <Route path="listar-empleados" element={<ListarEmpleados />} />
+        {/* Ruta Editar Empleado */}
+        <Route path="editar-empleado/:id" element={<EditarEmpleado />} />
+
 
       {/* RUTAS PRODUCTO */}
         {/* Ruta Agregar Producto */}
