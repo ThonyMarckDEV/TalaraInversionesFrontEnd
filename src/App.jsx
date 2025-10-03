@@ -22,6 +22,7 @@ import Home from 'ui/home/Home';
 
 
 // UIS ADMIN
+import AgregarCliente from 'ui/Administrador/clientes/agregarClientes/AgregarCliente';
 
 
 // UIS CLIENTE
@@ -56,10 +57,10 @@ function AppContent() {
         {/* Ruta Home (cuando solo pones /admin) */}
         <Route index element={<Home />} />
 
-        {/* Ruta Solicitar Préstamo */}
-        
+        {/* Ruta Agregar Cliente */}
+        <Route path="agregar-cliente" element={<AgregarCliente />} />
 
-        {/* Aquí agregas más módulos */}
+      
 
       </Route>
 

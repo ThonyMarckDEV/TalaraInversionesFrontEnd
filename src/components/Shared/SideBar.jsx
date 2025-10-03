@@ -19,39 +19,18 @@ const Sidebar = () => {
   };
 
   const menus = {
-    superadmin: [
-      {
-        section: 'Home',
-        link: '/superadmin',
-      },
-      {
-        section: 'Clientes',
-        link: '/superadmin/clientes',
-      },      
-      {
-        section: 'Empleados',
-        link: '/superadmin/empleados',
-      },
-    ],
     admin: [
       {
         section: 'Dashboard',
         link: '/admin/dashboard',
       },
       {
-        section: 'Users',
+        section: 'Clientes',
         subs: [
-          { name: 'List Users', link: '/admin/users/list' },
-          { name: 'Add User', link: '/admin/users/add' },
+          { name: 'Agregar Cliente', link: '/admin/agregar-cliente' },
+          { name: 'Listar Clientes', link: '/admin/listar-clientes' },
         ],
-      },
-      {
-        section: 'Settings',
-        subs: [
-          { name: 'General', link: '/admin/settings/general' },
-          { name: 'Security', link: '/admin/settings/security' },
-        ],
-      },
+      }
     ],
     cliente: [
       {
@@ -83,23 +62,6 @@ const Sidebar = () => {
         ]
       },
     ],
-    auditor: [
-      {
-        section: 'Dashboard',
-        link: '/auditor/dashboard',
-      },
-      {
-        section: 'Reports',
-        link: '/auditor/reports',
-      },
-      {
-        section: 'Teams',
-        subs: [
-          { name: 'Team List', link: '/encargado/teams/list' },
-          { name: 'Assign Tasks', link: '/encargado/teams/tasks' },
-        ],
-      },
-    ],
     cajero: [
       {
         section: 'Dashboard',
@@ -115,14 +77,6 @@ const Sidebar = () => {
           { name: 'Team List', link: '/encargado/teams/list' },
           { name: 'Assign Tasks', link: '/encargado/teams/tasks' },
         ],
-      },
-    ],
-      jefe_negocios: [
-      {
-        section:'Evaluaciones',
-        subs:[
-          {name:'Evaluaciones Clientes' ,  link: '/jefe-negocios/evaluaciones-clientes'}
-        ]
       },
     ],
   };
@@ -234,7 +188,7 @@ const Sidebar = () => {
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="px-4 py-2 rounded bg-red-800 text-white hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 Sí
               </button>
