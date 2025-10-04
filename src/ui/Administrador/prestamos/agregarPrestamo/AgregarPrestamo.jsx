@@ -38,7 +38,7 @@ const AgregarPrestamo = () => {
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState(null);
     const [errors, setErrors] = useState({});
-    const [clienteData, setClienteData] = useState(null); 
+   // const [clienteData, setClienteData] = useState(null); 
     const navigate = useNavigate();
 
     // ESTADO DE RESULTADOS CALCULADOS
@@ -99,11 +99,17 @@ const AgregarPrestamo = () => {
             const dataToSend = {
                 ...dataToSubmit,
                 
-                // Asegurar que los valores calculados y principales sean numéricos
-                total: parseFloat(totalPagar),
-                valor_cuota: parseFloat(valorCuota),
-                monto: parseFloat(form.monto),
-                cuotas: parseInt(form.cuotas),
+                // Conversiones de TIPO DE DATO:
+                id_Producto: parseInt(form.id_Producto), 
+                id_Asesor: parseInt(form.id_Asesor),
+                id_Cliente: parseInt(form.id_Cliente),
+                monto: parseFloat(form.monto),
+                interes: parseFloat(form.interes),
+                cuotas: parseInt(form.cuotas),
+                
+                // Valores calculados
+                total: parseFloat(totalPagar),
+                valor_cuota: parseFloat(valorCuota),
             };
 
             // 📢 Imprimir el JSON final limpio en la consola para verificación
