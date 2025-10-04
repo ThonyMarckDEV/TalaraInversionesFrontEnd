@@ -34,6 +34,7 @@ import ListarEmpleados from 'ui/Administrador/empleados/listarEmpleados/ListarEm
 import EditarEmpleado from 'ui/Administrador/empleados/editarEmpleados/EditarEmpleado';
 
 import AgregarPrestamo from 'ui/Administrador/prestamos/agregarPrestamo/AgregarPrestamo';
+import ListarPrestamos from 'ui/Administrador/prestamos/listarPrestamo/ListarPrestamo';
 
 // UIS CLIENTE
 
@@ -95,7 +96,7 @@ function AppContent() {
         {/* Ruta Agregar Producto */}
         <Route path="agregar-prestamo" element={<AgregarPrestamo />} />
         {/* Ruta Listar Cliente */}
-        {/* <Route path="listar-prestamos" element={<ListarPrestamos />} /> */}
+        <Route path="listar-prestamos" element={<ListarPrestamos />} />
 
       </Route>
 
