@@ -74,7 +74,7 @@ const ListarPrestamos = () => {
             setSortBy(column);
             setSortOrder('asc');
         }
-    }, [sortBy, sortOrder]);
+    }, [sortBy]);
 
     const getSortIndicator = (column) => {
         if (sortBy !== column) return null;
