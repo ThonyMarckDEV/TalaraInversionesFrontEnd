@@ -125,7 +125,7 @@ const AgregarPrestamo = () => {
             setForm(initialFormState); 
             // Eliminamos setClienteData(null) ya que ya no lo usamos para la búsqueda
             
-           // setTimeout(() => navigate('/admin/listar-prestamos'), 2000); 
+            setTimeout(() => navigate('/admin/listar-prestamos'), 2000); 
 
         } catch (err) {
             if (err.errors) {
