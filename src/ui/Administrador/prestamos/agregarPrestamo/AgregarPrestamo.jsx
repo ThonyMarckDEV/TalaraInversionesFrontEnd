@@ -202,6 +202,7 @@ const AgregarPrestamo = () => {
 
                 <FrecuenciaAsesorForm
                     form={form}
+                    setForm={setForm}
                     handleChange={handleChange}
                     errors={errors}
                     isFormLocked={isFormLocked}
