@@ -1,7 +1,6 @@
 import React from 'react';
 
 const ListaPrestamosCliente = ({ prestamos, onSelectPrestamo, selectedPrestamoId }) => {
-    const estadoMap = { 1: 'Vigente', 3: 'Liquidado' };
 
     if (prestamos.length === 0) {
         return <p className="text-center text-gray-500 py-4">El cliente no tiene préstamos vigentes.</p>;
