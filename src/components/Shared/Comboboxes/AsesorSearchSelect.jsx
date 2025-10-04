@@ -1,60 +1,60 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getEmpleadoById } from 'services/empleadoService';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 
 const ASESOR_ROL_ID = 3;
 
-const AsesorSearchSelect = ({ form, handleChange, errors, disabled }) => {
+const AsesorSearchSelect = ({ form, setForm, errors, disabled }) => {
     const [loading, setLoading] = useState(false);
     const [dniInput, setDniInput] = useState(form.asesorDni || '');
     const [alert, setAlert] = useState(null); 
-    const [asesorNombre, setAsesorNombre] = useState('');
 
     useEffect(() => {
-        if (form.id_Asesor === '' && form.asesorDni === '') {
-            setDniInput('');
-            setAsesorNombre('');
-        }
-    }, [form.id_Asesor, form.asesorDni]);
+        setDniInput(form.asesorDni || '');
+    }, [form.asesorDni]);
 
     const handleDniChange = (e) => {
         const { value } = e.target;
         setDniInput(value);
-        handleChange({ target: { name: 'id_Asesor', value: '' } }); 
-        setAsesorNombre('');
+        if (form.id_Asesor) {
+            setForm(prev => ({ ...prev, id_Asesor: '', asesorNombre: '', asesorDni: value }));
+        }
     };
 
     const handleSearchAsesor = async () => {
         const dni = dniInput.trim();
         
         if (!dni || dni.length < 8) { 
-            setAlert({ type: 'error', message: 'El DNI o RUC debe tener 8 o más dígitos.' });
+            setAlert({ type: 'error', message: 'El DNI debe tener 8 o más dígitos.' });
             return;
         }
 
         setLoading(true);
         setAlert(null);
-        handleChange({ target: { name: 'id_Asesor', value: '' } });
-        setAsesorNombre('');
         
         try {
             const response = await getEmpleadoById(dni); 
             const empleado = response.data;
             
             if (empleado.id_Rol !== ASESOR_ROL_ID) {
-                setAlert({ type: 'error', message: `El usuario encontrado no es un Asesor (Rol ${ASESOR_ROL_ID}).` });
+                setAlert({ type: 'error', message: 'El DNI no corresponde a un Asesor.' });
+                setForm(prev => ({ ...prev, id_Asesor: '', asesorNombre: '' }));
                 return;
             }
             
             const nombreCompleto = `${empleado.datos.nombre} ${empleado.datos.apellidoPaterno} ${empleado.datos.apellidoMaterno}`.trim();
             
-            handleChange({ target: { name: 'id_Asesor', value: empleado.id } });
-            setAsesorNombre(nombreCompleto);
-            setAlert({ type: 'success', message: `Asesor ${nombreCompleto} encontrado y seleccionado.` });
+            setForm(prev => ({ 
+                ...prev, 
+                id_Asesor: empleado.id,
+                asesorNombre: nombreCompleto,
+                asesorDni: dni
+            }));
+            setAlert({ type: 'success', message: `Asesor ${nombreCompleto} seleccionado.` });
             
         } catch (err) {
             setAlert({ type: 'error', message: err.message || 'Error al buscar empleado. Verifique el DNI.' });
-            handleChange({ target: { name: 'id_Asesor', value: '' } }); 
+            setForm(prev => ({ ...prev, id_Asesor: '', asesorNombre: '' })); 
         } finally {
             setLoading(false);
         }
@@ -68,7 +68,6 @@ const AsesorSearchSelect = ({ form, handleChange, errors, disabled }) => {
                 onClose={() => setAlert(null)}
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-                
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">DNI del Asesor (Rol 3)</label>
                     <input 
@@ -95,9 +94,9 @@ const AsesorSearchSelect = ({ form, handleChange, errors, disabled }) => {
                 </div>
                 
                 <div className="col-span-1 md:col-span-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Asesor Seleccionado (ID: {form.id_Asesor || 'N/A'})</label>
-                    <p className="p-2 border border-gray-300 bg-gray-100 rounded-md">
-                        {asesorNombre || 'N/A'}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Asesor Seleccionado</label>
+                    <p className="p-2 border border-gray-300 bg-gray-100 rounded-md truncate">
+                        {form.asesorNombre || 'N/A'}
                     </p>
                 </div>
             </div>

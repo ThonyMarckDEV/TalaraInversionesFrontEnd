@@ -1,9 +1,8 @@
 import React from 'react';
 import AsesorSearchSelect from 'components/Shared/Comboboxes/AsesorSearchSelect';
 
-const FrecuenciaAsesorForm = ({ form, handleChange, errors, isFormLocked }) => {
+const FrecuenciaAsesorForm = ({ form, handleChange, setForm, errors, isFormLocked, isEditing = false }) => {
     
-    // Este mapa sigue siendo útil para mostrar el texto completo
     const modalidadLabels = {
         NUEVO: 'NUEVO',
         RCS: 'RCS (Renovación Crédito Simple)',
@@ -32,30 +31,29 @@ const FrecuenciaAsesorForm = ({ form, handleChange, errors, isFormLocked }) => {
                     {errors.frecuencia && <p className="text-red-500 text-xs mt-1">{errors.frecuencia}</p>}
                 </div>
 
+                {/* --- CORRECCIÓN AQUÍ ---
+                    Pasamos 'setForm' en lugar del 'handleChange' complicado */}
                 <AsesorSearchSelect
                     form={form}
-                    handleChange={handleChange}
+                    setForm={setForm}
                     errors={errors}
                     disabled={isFormLocked}
                 />
                 
-                {/* === INICIO DE LA MODIFICACIÓN === */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Modalidad</label>
-                    
-                    {/* Reemplazamos el <select> por un <p> de solo lectura */}
-                    <p className="p-2 border border-gray-300 bg-gray-100 rounded-md">
-                        {
-                            !form.id_Cliente 
+                    {isEditing ? (
+                        <p className="p-2 border border-gray-300 bg-gray-100 rounded-md">
+                            {modalidadLabels[form.modalidad] || form.modalidad || 'N/A'}
+                        </p>
+                    ) : (
+                        <p className="p-2 border border-gray-300 bg-gray-100 rounded-md">
+                            {!form.id_Cliente 
                                 ? 'Seleccione un cliente primero' 
-                                : (form.modalidad ? modalidadLabels[form.modalidad] : 'Modalidad no aplicable')
-                        }
-                    </p>
-
-                    {/* El mensaje de error aún puede ser útil si la validación viene del backend */}
-                    {errors.modalidad && <p className="text-red-500 text-xs mt-1">{errors.modalidad}</p>}
+                                : (modalidadLabels[form.modalidad] || 'Modalidad no aplicable')}
+                        </p>
+                    )}
                 </div>
-                {/* === FIN DE LA MODIFICACIÓN === */}
                 
             </div>
         </section>

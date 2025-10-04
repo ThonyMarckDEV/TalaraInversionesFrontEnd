@@ -55,3 +55,20 @@ export const extornarPrestamo = async (id) => {
     });
     return handleResponse(response);
 };
+
+/**
+ * Actualiza un préstamo existente.
+ * @param {number} id - El ID del préstamo a actualizar.
+ * @param {object} prestamoData - Los nuevos datos del préstamo.
+ */
+export const updatePrestamo = async (id, prestamoData) => {
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/prestamo/update/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(prestamoData),
+    });
+    return handleResponse(response);
+};
