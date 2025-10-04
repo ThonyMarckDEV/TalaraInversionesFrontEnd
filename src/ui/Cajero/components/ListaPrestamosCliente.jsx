@@ -19,11 +19,24 @@ const ListaPrestamosCliente = ({ prestamos, onSelectPrestamo, selectedPrestamoId
                         onChange={() => onSelectPrestamo(p.id)}
                         checked={selectedPrestamoId === p.id}
                     />
-                    <div className="ml-4 flex-grow grid grid-cols-3 gap-4">
-                        <p className="text-sm font-medium">ID Préstamo: <span className="font-bold text-red-800">{p.id}</span></p>
-                        <p className="text-sm">Monto: <span className="font-semibold">S/ {parseFloat(p.monto).toFixed(2)}</span></p>
-                        <p className="text-sm">Estado: <span className="font-semibold">{estadoMap[p.estado] || 'N/A'}</span></p>
+                    
+                    {/* --- INICIO DE LA MODIFICACIÓN --- */}
+                    <div className="ml-4 flex-grow grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                        <p className="text-sm font-medium">
+                            ID: <span className="font-bold text-red-800">{p.id}</span>
+                        </p>
+                        <p className="text-sm">
+                            Monto: <span className="font-semibold">S/ {parseFloat(p.monto).toFixed(2)}</span>
+                        </p>
+                        <p className="text-sm">
+                            Interés: <span className="font-semibold">{(parseFloat(p.interes) * 100).toFixed(0)}%</span>
+                        </p>
+                        <p className="text-sm">
+                            Total: <span className="font-semibold">S/ {parseFloat(p.total).toFixed(2)}</span>
+                        </p>
                     </div>
+                    {/* --- FIN DE LA MODIFICACIÓN --- */}
+
                 </label>
             ))}
         </div>

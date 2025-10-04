@@ -7,7 +7,7 @@ import DetallePrestamoModal from '../components/modals/DetallePrestamoModal';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ViewPdfModal from 'components/Shared/Modals/ViewPdfModal';
-import API_BASE_URL from 'js/urlHelper'; // 1. Importar la URL base
+import API_BASE_URL from 'js/urlHelper';
 
 const ListarPrestamos = () => {
     const [loading, setLoading] = useState(true);
@@ -46,7 +46,6 @@ const ListarPrestamos = () => {
             });
         } catch (err) {
             setError('No se pudieron cargar los préstamos.');
-            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -79,10 +78,10 @@ const ListarPrestamos = () => {
         return sortOrder === 'asc' ? ' ↑' : ' ↓';
     };
 
-    const isEditable = (fechaGeneracion) => {
+    const isEditable = (prestamo) => {
         const hoy = new Date();
-        const fechaPrestamo = new Date(fechaGeneracion);
-        return hoy.toDateString() === fechaPrestamo.toDateString();
+        const fechaPrestamo = new Date(prestamo.fecha_generacion);
+        return hoy.toDateString() === fechaPrestamo.toDateString() && !prestamo.tiene_cuotas_pagadas;
     };
 
     const handleViewDetails = (prestamoId) => {
@@ -96,7 +95,6 @@ const ListarPrestamos = () => {
 
     const executeExtornar = async () => {
         if (!prestamoToExtornar) return;
-
         const id = prestamoToExtornar;
         setPrestamoToExtornar(null);
         setLoading(true);
@@ -115,9 +113,6 @@ const ListarPrestamos = () => {
             setAlert({ type: 'info', message: 'No se encontró un archivo de cronograma para este préstamo.' });
             return;
         }
-        // ==========================================================
-        // CORRECCIÓN AQUÍ: Concatenamos la URL base con la ruta relativa
-        // ==========================================================
         const fullUrl = `${API_BASE_URL}${url}`;
         setPdfUrl(fullUrl);
         setIsPdfModalOpen(true);
@@ -144,7 +139,7 @@ const ListarPrestamos = () => {
 
             {prestamoToExtornar && (
                 <ConfirmModal
-                    message={`¿Estás seguro de que deseas extornar el préstamo ID: ${prestamoToExtornar}?`}
+                    message={`¿Estás seguro de que deseas extornar el préstamo ID: ${prestamoToExtornar}? Esta acción no se puede deshacer.`}
                     onConfirm={executeExtornar}
                     onCancel={() => setPrestamoToExtornar(null)}
                 />
@@ -168,7 +163,7 @@ const ListarPrestamos = () => {
                             <tr key={p.id} className="border-b border-gray-200 hover:bg-gray-50">
                                 <td className="px-5 py-4 text-sm font-semibold">{p.id}</td>
                                 <td className="px-5 py-4 text-sm">
-                                    <p className="font-bold">{`${p.cliente?.datos?.nombre || 'Sin'} ${p.cliente?.datos?.apellidoPaterno || 'Nombre'}`}</p>
+                                    <p className="font-bold">{`${p.cliente?.datos?.nombre || ''} ${p.cliente?.datos?.apellidoPaterno || ''}`}</p>
                                     <p className="text-gray-500">DNI: {p.cliente?.datos?.dni || 'N/A'}</p>
                                 </td>
                                 <td className="px-5 py-4 text-sm">{parseFloat(p.monto).toFixed(2)}</td>
@@ -178,22 +173,12 @@ const ListarPrestamos = () => {
                                     <span className={`px-3 py-1 font-semibold leading-tight rounded-full text-xs ${estadoColors[p.estado] || 'bg-gray-100'}`}>{estadoMap[p.estado] || 'Desconocido'}</span>
                                 </td>
                                 <td className="px-5 py-4 text-sm whitespace-nowrap">
-                                    <button onClick={() => handleViewDetails(p.id)} className="text-blue-600 hover:text-blue-900 font-semibold mr-4">
-                                        Ver
-                                    </button>
-                                    
-                                    <button onClick={() => handleViewCronograma(p.cronograma_url)} className="text-green-600 hover:text-green-900 font-semibold mr-4 disabled:text-gray-400 disabled:cursor-not-allowed" disabled={!p.cronograma_url}>
-                                        Cronograma
-                                    </button>
-
-                                    {isEditable(p.fecha_generacion) && (
+                                    <button onClick={() => handleViewDetails(p.id)} className="text-blue-600 hover:text-blue-900 font-semibold mr-4">Ver</button>
+                                    <button onClick={() => handleViewCronograma(p.cronograma_url)} className="text-green-600 hover:text-green-900 font-semibold mr-4 disabled:text-gray-400 disabled:cursor-not-allowed" disabled={!p.cronograma_url}>Cronograma</button>
+                                    {isEditable(p) && (
                                         <>
-                                            <Link to={`/admin/editar-prestamo/${p.id}`} className="text-indigo-600 hover:text-indigo-900 mr-4 font-semibold">
-                                                Editar
-                                            </Link>
-                                            <button onClick={() => handleExtornar(p.id)} className="text-red-600 hover:text-red-900 font-semibold">
-                                                Extornar
-                                            </button>
+                                            <Link to={`/admin/editar-prestamo/${p.id}`} className="text-indigo-600 hover:text-indigo-900 mr-4 font-semibold">Editar</Link>
+                                            <button onClick={() => handleExtornar(p.id)} className="text-red-600 hover:text-red-900 font-semibold">Extornar</button>
                                         </>
                                     )}
                                 </td>
