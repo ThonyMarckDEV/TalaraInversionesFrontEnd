@@ -17,7 +17,7 @@ import LoadingScreen from 'components/Shared/LoadingScreen';
 const initialFormState = {
     // SECCIÓN 1: Cliente
     id_Cliente: null, 
-    clienteDni: '',    // 👈 Dejar como string vacío
+    clienteDni: '',  
     clienteNombre: '', 
     
     // SECCIÓN 2: Datos del Préstamo
@@ -96,12 +96,18 @@ const AgregarPrestamo = () => {
 
         try {
             // CORRECCIÓN CLAVE: Usar desestructuración para excluir las claves de la UI
-            const { clienteDni, clienteNombre, ...dataToSubmit } = form;
+            const { 
+                clienteDni, 
+                clienteNombre, 
+                asesorDni,  
+                asesorNombre,
+                ...dataToSubmit 
+            } = form;
 
             const dataToSend = {
-                ...dataToSubmit,
-                
-                // Conversiones de TIPO DE DATO:
+                ...dataToSubmit,
+                
+                // Conversiones de TIPO DE DATO:
                 id_Producto: parseInt(form.id_Producto), 
                 id_Asesor: parseInt(form.id_Asesor),
                 id_Cliente: parseInt(form.id_Cliente),
