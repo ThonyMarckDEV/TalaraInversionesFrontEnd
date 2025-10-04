@@ -40,7 +40,6 @@ const AgregarPrestamo = () => {
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState(null);
     const [errors, setErrors] = useState({});
-   // const [clienteData, setClienteData] = useState(null); 
     const navigate = useNavigate();
 
     // ESTADO DE RESULTADOS CALCULADOS
@@ -129,7 +128,7 @@ const AgregarPrestamo = () => {
             setForm(initialFormState); 
             // Eliminamos setClienteData(null) ya que ya no lo usamos para la búsqueda
             
-            setTimeout(() => navigate('/admin/listar-prestamos'), 2000); 
+           // setTimeout(() => navigate('/admin/listar-prestamos'), 2000); 
 
         } catch (err) {
             if (err.errors) {
