@@ -45,12 +45,13 @@ export const getPrestamoById = async (id) => {
 };
 
 /**
- * Obtiene los detalles completos de un préstamo por su ID.
+ * Envía una solicitud para extornar (anular) un préstamo.
+ * @param {number} id - El ID del préstamo a extornar.
  */
 export const extornarPrestamo = async (id) => {
-    // ==========================================================
-    // CORRECCIÓN PRINCIPAL: Usando la URL exacta que definiste
-    // ==========================================================
-    const response = await fetchWithAuth(`${API_BASE_URL}/api/prestamo/extornar/${id}`);
+    // Usaremos el método POST para esta acción
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/prestamo/extornar/${id}`, {
+        method: 'POST', // Especificamos que es una acción de modificación
+    });
     return handleResponse(response);
 };
