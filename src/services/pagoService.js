@@ -7,7 +7,7 @@ import { fetchWithAuth } from 'js/authToken';
  * @param {object} pagoData - Los datos del formulario de pago.
  */
 export const registrarPago = async (pagoData) => {
-    const response = await fetchWithAuth(`${API_BASE_URL}/api/pagos`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/pago/store`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

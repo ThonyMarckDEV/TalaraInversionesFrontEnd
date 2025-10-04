@@ -3,7 +3,7 @@ import loaderGif from '../../assets/gif/loading.gif'; // asegúrate de que el no
 
 const LoadingScreen = () => {
   return (
-    <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-white flex items-center justify-center z-[9999]">
       <img 
         src={loaderGif} 
         alt="Loading..." 

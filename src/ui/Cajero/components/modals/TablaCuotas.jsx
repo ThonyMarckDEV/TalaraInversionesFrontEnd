@@ -13,7 +13,6 @@ const TablaCuotas = ({ cuotas, onPagar, processingId }) => {
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>
-                            {/* --- CABECERAS DE TABLA ACTUALIZADAS --- */}
                             <th className="px-4 py-2 text-left">N° Cuota</th>
                             <th className="px-4 py-2 text-left">Vencimiento</th>
                             <th className="px-4 py-2 text-right">Monto Cuota (S/.)</th>
@@ -27,18 +26,22 @@ const TablaCuotas = ({ cuotas, onPagar, processingId }) => {
                     </thead>
                     <tbody>
                         {cuotas.map((c, index) => {
-                            // Calculamos el monto total a pagar para esta cuota
-                            const montoAPagar = parseFloat(c.monto) + parseFloat(c.cargo_mora); // Asumiendo que el excedente se maneja por separado
+                            // --- INICIO DE LA CORRECCIÓN ---
+                            // Fórmula correcta: (Monto + Mora) - Excedente
+                            const monto = parseFloat(c.monto || 0);
+                            const mora = parseFloat(c.cargo_mora || 0);
+                            const excedente = parseFloat(c.excedente_anterior || 0);
+                            const montoAPagar = Math.max(0, (monto + mora) - excedente);
+                            // --- FIN DE LA CORRECCIÓN ---
                             
                             return (
                                 <tr key={c.id} className="border-t">
-                                    {/* --- CELDAS DE TABLA ACTUALIZADAS --- */}
                                     <td className="px-4 py-2 font-medium">{c.numero_cuota}</td>
                                     <td className="px-4 py-2">{new Date(c.fecha_vencimiento).toLocaleDateString()}</td>
-                                    <td className="px-4 py-2 text-right">{parseFloat(c.monto).toFixed(2)}</td>
-                                    <td className={`px-4 py-2 text-right ${c.cargo_mora > 0 ? 'text-red-600 font-semibold' : ''}`}>{parseFloat(c.cargo_mora || 0).toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-right">{monto.toFixed(2)}</td>
+                                    <td className={`px-4 py-2 text-right ${mora > 0 ? 'text-red-600 font-semibold' : ''}`}>{mora.toFixed(2)}</td>
                                     <td className={`px-4 py-2 text-right ${c.dias_mora > 0 ? 'text-red-600 font-semibold' : ''}`}>{c.dias_mora || 0}</td>
-                                    <td className="px-4 py-2 text-right text-blue-600">{parseFloat(c.excedente_anterior || 0).toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-right text-blue-600">{excedente.toFixed(2)}</td>
                                     <td className="px-4 py-2 text-right font-bold bg-gray-50">{montoAPagar.toFixed(2)}</td>
                                     <td className="px-4 py-2 text-center">
                                         <span className={`px-2 py-1 font-semibold leading-tight rounded-full text-xs ${estadoCuotaColors[c.estado]}`}>

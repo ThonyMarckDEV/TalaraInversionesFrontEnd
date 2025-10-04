@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-
-// Se importa un ícono para darle un mejor aspecto al header
 import { CreditCard } from 'lucide-react';
 
 const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
-    // 1. La fecha y modalidad ya no son parte del estado editable.
+    
+    // 1. Calculamos el monto final a pagar, restando el excedente anterior.
+    const excedenteAnterior = parseFloat(cuota.excedente_anterior || 0);
+    const totalDeudaCuota = parseFloat(cuota.monto) + parseFloat(cuota.cargo_mora || 0);
+    const montoFinalAPagar = Math.max(0, totalDeudaCuota - excedenteAnterior); // Asegura que el monto no sea negativo.
+
+    // 2. El estado del formulario se inicializa con el monto final calculado.
     const [formData, setFormData] = useState({
         id_Cuota: cuota.id,
-        // El monto a pagar ahora incluye la mora.
-        monto_pagado: (parseFloat(cuota.monto) + parseFloat(cuota.cargo_mora || 0)).toFixed(2),
+        monto_pagado: montoFinalAPagar.toFixed(2),
         numero_operacion: '',
         observaciones: '',
     });
@@ -20,7 +23,7 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // 2. Al confirmar, añadimos la fecha y modalidad fijas a los datos a enviar.
+        // Al confirmar, añadimos la fecha y modalidad fijas a los datos a enviar.
         const dataToSend = {
             ...formData,
             fecha_pago: new Date().toISOString().split('T')[0],
@@ -44,7 +47,6 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
                                 <p className="text-sm text-gray-500">Préstamo ID: {cuota.id_Prestamo}</p>
                             </div>
                         </div>
-                        {/* Fecha y Modalidad Fijas */}
                         <div className="text-right">
                             <p className="text-xs font-semibold text-gray-600 bg-gray-200 px-2 py-1 rounded">PRESENCIAL</p>
                             <p className="text-xs text-gray-500 mt-1">{new Date().toLocaleDateString()}</p>
@@ -53,13 +55,25 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
 
                     {/* --- CUERPO DEL FORMULARIO --- */}
                     <div className="p-6 space-y-5">
-                        {/* Mostramos el desglose del monto */}
-                        <div className="bg-blue-50 p-3 rounded-md border border-blue-200 text-sm">
-                            <div className="flex justify-between"><span>Monto de la Cuota:</span> <span className="font-semibold">S/ {parseFloat(cuota.monto).toFixed(2)}</span></div>
-                            <div className="flex justify-between"><span>Cargo por Mora:</span> <span className="font-semibold text-red-600">S/ {parseFloat(cuota.cargo_mora || 0).toFixed(2)}</span></div>
-                            <div className="flex justify-between mt-2 pt-2 border-t font-bold text-base"><span>Total a Pagar:</span> <span>S/ {formData.monto_pagado}</span></div>
+                        <div className="bg-blue-50 p-3 rounded-md border border-blue-200 text-sm space-y-1">
+                            <div className="flex justify-between">
+                                <span>Monto de la Cuota:</span> 
+                                <span className="font-semibold">S/ {parseFloat(cuota.monto).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>Cargo por Mora:</span> 
+                                <span className="font-semibold text-red-600">S/ {parseFloat(cuota.cargo_mora || 0).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-green-700">
+                                <span>(-) Excedente Anterior:</span> 
+                                <span className="font-semibold">S/ {excedenteAnterior.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between mt-2 pt-2 border-t font-bold text-base">
+                                <span>Total a Pagar:</span> 
+                                <span>S/ {montoFinalAPagar.toFixed(2)}</span>
+                            </div>
                         </div>
-
+                        
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Monto Recibido</label>
                             <input 
@@ -101,4 +115,4 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
     );
 };
 
-export default RegistrarPagoModal
+export default RegistrarPagoModal;
