@@ -1,4 +1,4 @@
-// src/pages/Prestamos/AgregarPrestamo.jsx (ACTUALIZADO CON COMPONENTE REUTILIZABLE)
+// src/pages/Prestamos/AgregarPrestamo.jsx
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
