@@ -79,15 +79,31 @@ const AgregarCliente = () => {
   const handleBack = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const handleChange = (e, section) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [name]: type === 'checkbox' ? checked : value,
-      },
-    }));
-  };
+      const { name, value, type, checked } = e.target;
+      
+      setFormData(prev => {
+          const newSectionData = {
+              ...prev[section],
+              [name]: type === 'checkbox' ? checked : value,
+          };
+
+          // Lógica de reseteo para el formulario de direcciones
+          if (section === 'direcciones') {
+              if (name === 'departamento') {
+                  newSectionData.provincia = '';
+                  newSectionData.distrito = '';
+              }
+              if (name === 'provincia') {
+                  newSectionData.distrito = '';
+              }
+          }
+
+          return {
+              ...prev,
+              [section]: newSectionData,
+          };
+      });
+    };
 
   const handleAvalesChange = (updatedAvales) => {
     setFormData((prev) => ({
