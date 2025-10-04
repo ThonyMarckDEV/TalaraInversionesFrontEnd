@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Bars3Icon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import jwtUtils from 'utilities/Token/jwtUtils';
 import { logout } from 'js/logout';
-import logo from 'assets/img/talara_creditos_inversiones_logo.png';
+import logo from 'assets/img/Logo_FICSULLANA.png';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 
 // El objeto 'menus' se define UNA SOLA VEZ fuera del componente para ser estable.
