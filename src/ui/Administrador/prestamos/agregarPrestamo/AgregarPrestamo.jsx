@@ -41,10 +41,7 @@ const AgregarPrestamo = () => {
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
 
-    // ESTADO: Para bloquear el formulario si el cliente tiene un préstamo activo
     const [isFormLocked, setIsFormLocked] = useState(false);
-
-    // ESTADO DE RESULTADOS CALCULADOS
     const [totalPagar, setTotalPagar] = useState(0);
     const [valorCuota, setValorCuota] = useState(0);
     
@@ -64,9 +61,13 @@ const AgregarPrestamo = () => {
             });
         } else {
             setIsFormLocked(false);
-            if (alert && alert.message.includes('préstamo vigente')) {
-                setAlert(null);
-            }
+            
+            // ===== INICIO DE LA CORRECCIÓN =====
+            // Usamos la actualización funcional para evitar la dependencia de 'alert'
+            setAlert(prevAlert => 
+                (prevAlert && prevAlert.message.includes('préstamo vigente')) ? null : prevAlert
+            );
+            // ===== FIN DE LA CORRECCIÓN =====
         }
     }, [form.modalidad_cliente]);
 
