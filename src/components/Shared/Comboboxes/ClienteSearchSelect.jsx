@@ -1,40 +1,30 @@
-// src/components/Shared/ClienteSearchSelect.jsx (CLEANED)
-
 import React, { useState , useEffect } from 'react';
-import { showCliente } from 'services/clienteService'; // Importamos el servicio
+import { showCliente } from 'services/clienteService';
 
-/**
- * Componente que permite buscar un cliente por DNI/RUC y selecciona su ID.
- * @param {object} form - Objeto de estado del formulario padre.
- * @param {function} setForm - Setter del estado del formulario padre.
- * @param {function} setAlert - Setter para mostrar mensajes de alerta.
- * @param {function} setErrors - Setter para manejar errores de validación.
- * @returns {JSX.Element}
- */
-const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
+const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors, disabled }) => {
     const [loading, setLoading] = useState(false);
     const [dniInput, setDniInput] = useState(form.clienteDni || '');
 
-     // FIX: useEffect para resetear el DNI local cuando el id_Cliente se vuelve nulo (reseteo del form padre)
     useEffect(() => {
         if (form.id_Cliente === null && form.clienteDni === '') {
             setDniInput('');
         }
-    }, [form.id_Cliente, form.clienteDni]); // Depende del ID y del DNI del form padre
+    }, [form.id_Cliente, form.clienteDni]);
 
-    // 1. Manejar el cambio del input DNI interno
     const handleDniChange = (e) => {
         const { value } = e.target;
         setDniInput(value);
         
-        // ... (rest of the logic is fine)
-        // Opcional: Limpiar cliente seleccionado si el DNI cambia
         if (form.id_Cliente && form.clienteDni !== value) {
-             setForm(prev => ({ ...prev, id_Cliente: null, clienteNombre: '' }));
+             setForm(prev => ({ 
+                ...prev, 
+                id_Cliente: null, 
+                clienteNombre: '', 
+                modalidad_cliente: ''
+            }));
         }
     };
 
-    // 2. Lógica de Búsqueda
     const handleSearchCliente = async () => {
         const dni = dniInput.trim();
         
@@ -44,7 +34,7 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
         }
 
         setLoading(true);
-        setForm(prev => ({ ...prev, id_Cliente: null, clienteNombre: '' }));
+        setForm(prev => ({ ...prev, id_Cliente: null, clienteNombre: '', modalidad_cliente: '' }));
         setAlert(null);
         
         try {
@@ -53,12 +43,12 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
             
             const nombreCompleto = `${cliente.datos.nombre} ${cliente.datos.apellidoPaterno} ${cliente.datos.apellidoMaterno}`.trim();
             
-            // Actualizar el estado del formulario padre (id_Cliente y clienteNombre)
             setForm(prev => ({ 
                 ...prev, 
                 id_Cliente: cliente.id, 
                 clienteNombre: nombreCompleto,
-                clienteDni: dni // Aseguramos que el DNI final se guarde
+                clienteDni: dni,
+                modalidad_cliente: cliente.modalidad_cliente
             }));
 
             setAlert({ type: 'success', message: `Cliente ${nombreCompleto} encontrado y seleccionado.` });
@@ -66,7 +56,7 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
         } catch (err) {
             setAlert({ type: 'error', message: err.message || 'Error al buscar cliente. Verifique el DNI.' });
             setErrors(prev => ({ ...prev, clienteDni: 'Cliente no encontrado o DNI inválido.' }));
-            setForm(prev => ({ ...prev, id_Cliente: null, clienteNombre: '' })); // Limpiar si falla
+            setForm(prev => ({ ...prev, id_Cliente: null, clienteNombre: '', modalidad_cliente: '' }));
         } finally {
             setLoading(false);
         }
@@ -77,7 +67,6 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
             <h2 className="text-xl font-semibold text-red-800 mb-4">1. Búsqueda y Selección de Cliente</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
                 
-                {/* Input DNI */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">DNI del Cliente</label>
                     <input 
@@ -86,25 +75,23 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
                         value={dniInput}
                         onChange={handleDniChange}
                         maxLength={15}
-                        className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100"
+                        disabled={disabled}
                     />
-                    {/* Usamos directamente form.errors */}
                     {form.errors.clienteDni && <p className="text-red-500 text-xs mt-1">{form.errors.clienteDni}</p>}
                 </div>
                 
-                {/* Botón de Búsqueda */}
                 <div>
                     <button 
                         type="button" 
                         onClick={handleSearchCliente}
-                        disabled={loading || dniInput.length < 8}
+                        disabled={loading || dniInput.length < 8 || disabled}
                         className="w-full bg-red-800 hover:bg-red-900 text-white font-bold py-2 px-4 rounded-md transition duration-150 disabled:bg-gray-400"
                     >
                         {loading ? 'Buscando...' : 'Buscar Cliente'}
                     </button>
                 </div>
                 
-                {/* Resultado (Solo Lectura) */}
                 <div className="col-span-1 md:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Cliente Seleccionado</label>
                     <p className="p-2 border border-gray-300 bg-gray-100 rounded-md">
