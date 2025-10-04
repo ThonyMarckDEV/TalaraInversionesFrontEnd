@@ -1,4 +1,4 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { showCliente } from 'services/clienteService';
 
 const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors, disabled }) => {
@@ -16,7 +16,7 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors, disabled }) =
         setDniInput(value);
         
         if (form.id_Cliente && form.clienteDni !== value) {
-             setForm(prev => ({ 
+            setForm(prev => ({ 
                 ...prev, 
                 id_Cliente: null, 
                 clienteNombre: '', 
@@ -29,7 +29,7 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors, disabled }) =
         const dni = dniInput.trim();
         
         if (!dni || dni.length < 8) { 
-            setErrors(prev => ({ ...prev, clienteDni: 'El DNI o RUC debe tener 8 o más dígitos.' }));
+            setErrors(prev => ({ ...prev, clienteDni: 'El DNI debe tener 8 o más dígitos.' }));
             return;
         }
 
@@ -40,7 +40,6 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors, disabled }) =
         try {
             const response = await showCliente(dni); 
             const cliente = response.data;
-            
             const nombreCompleto = `${cliente.datos.nombre} ${cliente.datos.apellidoPaterno} ${cliente.datos.apellidoMaterno}`.trim();
             
             setForm(prev => ({ 
@@ -50,24 +49,40 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors, disabled }) =
                 clienteDni: dni,
                 modalidad_cliente: cliente.modalidad_cliente
             }));
-
-            setAlert({ type: 'success', message: `Cliente ${nombreCompleto} encontrado y seleccionado.` });
+            setAlert({ type: 'success', message: `Cliente ${nombreCompleto} encontrado.` });
             
         } catch (err) {
-            setAlert({ type: 'error', message: err.message || 'Error al buscar cliente. Verifique el DNI.' });
-            setErrors(prev => ({ ...prev, clienteDni: 'Cliente no encontrado o DNI inválido.' }));
+            setAlert({ type: 'error', message: err.message || 'Error al buscar cliente.' });
+            setErrors(prev => ({ ...prev, clienteDni: 'Cliente no encontrado.' }));
             setForm(prev => ({ ...prev, id_Cliente: null, clienteNombre: '', modalidad_cliente: '' }));
         } finally {
             setLoading(false);
         }
     };
 
+    // --- INICIO DE LA MODIFICACIÓN ---
+    // 2. Función para limpiar el formulario
+    const handleClear = () => {
+        setDniInput('');
+        setAlert(null);
+        setErrors(prev => ({...prev, clienteDni: null}));
+        setForm(prev => ({
+            ...prev,
+            id_Cliente: null,
+            clienteDni: '',
+            clienteNombre: '',
+            modalidad_cliente: ''
+        }));
+    };
+    // --- FIN DE LA MODIFICACIÓN ---
+
     return (
         <section>
             <h2 className="text-xl font-semibold text-red-800 mb-4">1. Búsqueda y Selección de Cliente</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+            {/* 1. Layout ajustado a 4 columnas */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 
-                <div>
+                <div className="md:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">DNI del Cliente</label>
                     <input 
                         type="text" 
@@ -75,26 +90,35 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors, disabled }) =
                         value={dniInput}
                         onChange={handleDniChange}
                         maxLength={15}
-                        className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100"
+                        className="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500 disabled:bg-gray-100"
                         disabled={disabled}
                     />
                     {form.errors.clienteDni && <p className="text-red-500 text-xs mt-1">{form.errors.clienteDni}</p>}
                 </div>
                 
-                <div>
+                <div className="flex gap-2">
                     <button 
                         type="button" 
                         onClick={handleSearchCliente}
                         disabled={loading || dniInput.length < 8 || disabled}
                         className="w-full bg-red-800 hover:bg-red-900 text-white font-bold py-2 px-4 rounded-md transition duration-150 disabled:bg-gray-400"
                     >
-                        {loading ? 'Buscando...' : 'Buscar Cliente'}
+                        {loading ? 'Buscando...' : 'Buscar'}
+                    </button>
+                    {/* 3. Botón de Limpiar */}
+                    <button 
+                        type="button" 
+                        onClick={handleClear}
+                        disabled={disabled}
+                        className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-md transition duration-150 disabled:bg-gray-100"
+                    >
+                        Limpiar
                     </button>
                 </div>
                 
-                <div className="col-span-1 md:col-span-1">
+                <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Cliente Seleccionado</label>
-                    <p className="p-2 border border-gray-300 bg-gray-100 rounded-md">
+                    <p className="p-2 border border-gray-300 bg-gray-100 rounded-md truncate">
                         {form.clienteNombre || 'N/A'}
                     </p>
                 </div>
