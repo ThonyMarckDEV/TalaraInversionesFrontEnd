@@ -1,6 +1,6 @@
 // src/components/Shared/AsesorSearchSelect.jsx
 
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { getEmpleadoById } from 'services/empleadoService'; // Nuevo servicio
 import AlertMessage from 'components/Shared/Errors/AlertMessage'; // Reutilizamos el AlertMessage
 
@@ -22,15 +22,24 @@ const AsesorSearchSelect = ({ form, handleChange, errors }) => {
     // Estado local para el nombre del asesor, ya que form.id_Asesor existe
     const [asesorNombre, setAsesorNombre] = useState('');
 
+     // FIX: useEffect para resetear el DNI local y el nombre cuando el id_Asesor se vuelve vacío (reseteo del form padre)
+    useEffect(() => {
+        if (form.id_Asesor === '' && form.asesorDni === '') {
+            setDniInput('');
+            setAsesorNombre('');
+        }
+    }, [form.id_Asesor, form.asesorDni]); // Depende del ID y del DNI del form padre
+
+
+
     // 1. Manejar el cambio del input DNI interno
     const handleDniChange = (e) => {
         const { value } = e.target;
         setDniInput(value);
-        // Limpiar errores y alerta al escribir
-        setAlert(null);
-        handleChange({ target: { name: 'id_Asesor', value: '' } }); // Limpiar ID del Asesor
-        // Opcional: limpiar error de validación de id_Asesor
-        errors.id_Asesor = null; 
+        // Limpiar ID del Asesor en el padre al cambiar el DNI
+        handleChange({ target: { name: 'id_Asesor', value: '' } }); 
+        setAsesorNombre(''); // Limpiar nombre en la UI
+        // ... (rest of the logic is fine)
     };
 
     // 2. Lógica de Búsqueda

@@ -1,6 +1,6 @@
 // src/components/Shared/ClienteSearchSelect.jsx (CLEANED)
 
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { showCliente } from 'services/clienteService'; // Importamos el servicio
 
 /**
@@ -15,16 +15,22 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
     const [loading, setLoading] = useState(false);
     const [dniInput, setDniInput] = useState(form.clienteDni || '');
 
+     // FIX: useEffect para resetear el DNI local cuando el id_Cliente se vuelve nulo (reseteo del form padre)
+    useEffect(() => {
+        if (form.id_Cliente === null && form.clienteDni === '') {
+            setDniInput('');
+        }
+    }, [form.id_Cliente, form.clienteDni]); // Depende del ID y del DNI del form padre
+
     // 1. Manejar el cambio del input DNI interno
     const handleDniChange = (e) => {
         const { value } = e.target;
         setDniInput(value);
-        // Limpia el error específico de DNI al empezar a escribir
-        setErrors(prev => ({ ...prev, clienteDni: null })); 
-
+        
+        // ... (rest of the logic is fine)
         // Opcional: Limpiar cliente seleccionado si el DNI cambia
         if (form.id_Cliente && form.clienteDni !== value) {
-            setForm(prev => ({ ...prev, id_Cliente: null, clienteNombre: '' }));
+             setForm(prev => ({ ...prev, id_Cliente: null, clienteNombre: '' }));
         }
     };
 

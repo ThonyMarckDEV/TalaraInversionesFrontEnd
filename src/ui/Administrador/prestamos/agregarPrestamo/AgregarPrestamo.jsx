@@ -13,17 +13,17 @@ import { createPrestamo } from 'services/prestamoService';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 
-// CORRECCIÓN: Nombres de propiedades COINCIDENTES con el uso en el JSX.
+
 const initialFormState = {
     // SECCIÓN 1: Cliente
-    id_Cliente: null, // ID del cliente (para el backend)
-    clienteDni: '',   // Input para la búsqueda
-    clienteNombre: '', // Nombre completo (para la UI)
+    id_Cliente: null, 
+    clienteDni: '',    // 👈 Dejar como string vacío
+    clienteNombre: '', 
     
     // SECCIÓN 2: Datos del Préstamo
     id_Producto: '',
     monto: 0,
-    interes: 0, // Tasa de interés (ej: 0.15 para 15%)
+    interes: 0, 
     cuotas: 1,
     abonado_por: '', 
     
@@ -31,6 +31,8 @@ const initialFormState = {
     frecuencia: '', 
     id_Asesor: '',
     modalidad: '', 
+    asesorDni: '', 
+    asesorNombre: ''
 };
 
 const AgregarPrestamo = () => {
@@ -192,7 +194,7 @@ const AgregarPrestamo = () => {
                     </button>
                     <button
                         type="submit"
-                        className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition duration-150 disabled:bg-gray-400"
+                        className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-6 rounded-lg transition duration-150 disabled:bg-gray-400"
                         disabled={loading || totalPagar <= 0 || !form.id_Cliente}
                     >
                         {loading ? 'Procesando...' : 'Generar Préstamo'}
