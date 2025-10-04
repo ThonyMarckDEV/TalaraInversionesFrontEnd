@@ -118,9 +118,6 @@ const AgregarPrestamo = () => {
                 total: parseFloat(totalPagar),
                 valor_cuota: parseFloat(valorCuota),
             };
-
-            // 📢 Imprimir el JSON final limpio en la consola para verificación
-            console.log("JSON a enviar al Backend:", dataToSend);
             
             const response = await createPrestamo(dataToSend);
             

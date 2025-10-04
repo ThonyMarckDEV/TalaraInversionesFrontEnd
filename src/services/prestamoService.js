@@ -10,13 +10,8 @@ import { fetchWithAuth } from 'js/authToken';
  * @returns {Promise<object>} - Objeto de éxito/error estandarizado.
  */
 export const createPrestamo = async (prestamoData) => {
-    // 📢 Usamos el endpoint que definimos en Laravel
-    const url = `${API_BASE_URL}/api/prestamo/store`;
-    
-    // Verificación de datos de envío (opcional, para depuración)
-    console.log("Datos a enviar para Prestamo:", prestamoData);
-    
-    const response = await fetchWithAuth(url, {
+
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/prestamo/store`, {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
