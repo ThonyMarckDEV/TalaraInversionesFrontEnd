@@ -17,3 +17,19 @@ export const registrarPago = async (pagoData) => {
     });
     return handleResponse(response);
 };
+
+/**
+ * Registra el pago para la cancelación total de un préstamo.
+ * @param {object} pagoData - Los datos del formulario de pago.
+ */
+export const cancelarTotalPrestamo = async (pagoData) => {
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/pago/cancelar-total`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify(pagoData),
+    });
+    return handleResponse(response);
+};

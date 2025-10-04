@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getPrestamos, getPrestamoById } from 'services/prestamoService';
-import { registrarPago } from 'services/pagoService';
+import { registrarPago, cancelarTotalPrestamo } from 'services/pagoService';
 import ClienteSearchSelect from 'components/Shared/Comboboxes/ClienteSearchSelect';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
@@ -20,8 +20,8 @@ const RegistrarPago = () => {
     const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
     
     const [cuotaParaPagar, setCuotaParaPagar] = useState(null);
-    
-    // Estados para el modal de visualización de PDF
+    const [esCancelacion, setEsCancelacion] = useState(false); // Estado para diferenciar el tipo de pago
+
     const [pdfUrl, setPdfUrl] = useState('');
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
@@ -64,15 +64,43 @@ const RegistrarPago = () => {
     const handleAbrirModalPago = (cuotaId) => {
         const cuota = prestamoSeleccionado.cuota.find(c => c.id === cuotaId);
         setCuotaParaPagar(cuota);
+        setEsCancelacion(false);
+    };
+
+    const handleAbrirModalCancelacion = () => {
+        const cuotasPendientes = prestamoSeleccionado.cuota.filter(c => c.estado !== 2);
+        if (cuotasPendientes.length === 0) return;
+
+        const deudaTotal = cuotasPendientes.reduce((total, c) => {
+            const monto = parseFloat(c.monto || 0);
+            const mora = parseFloat(c.cargo_mora || 0);
+            const excedente = parseFloat(c.excedente_anterior || 0);
+            return total + Math.max(0, (monto + mora) - excedente);
+        }, 0);
+
+        const ultimaCuota = cuotasPendientes[cuotasPendientes.length - 1];
+        const dataCancelacion = {
+            id: ultimaCuota.id,
+            id_Prestamo: prestamoSeleccionado.id,
+            numero_cuota: `Total (${cuotasPendientes.length} cuotas)`,
+            monto: deudaTotal.toFixed(2), // Usamos 'monto' para el cálculo en el modal
+            cargo_mora: 0,
+            excedente_anterior: 0,
+        };
+        
+        setCuotaParaPagar(dataCancelacion);
+        setEsCancelacion(true);
     };
 
     const handleConfirmarPago = async (pagoData) => {
         setLoading(true);
         try {
-            const response = await registrarPago(pagoData);
+            const service = esCancelacion ? cancelarTotalPrestamo : registrarPago;
+            const response = await service(pagoData);
+            
             setAlert({ type: 'success', message: response.message });
             setCuotaParaPagar(null);
-            await handleSelectPrestamo(selectedPrestamoId); // Refresca los datos
+            await handleSelectPrestamo(selectedPrestamoId);
         } catch (err) {
             setAlert({ type: 'error', message: err.message || 'Error al procesar el pago.' });
         } finally {
@@ -80,7 +108,6 @@ const RegistrarPago = () => {
         }
     };
     
-    // Función para manejar la visualización del comprobante
     const handleViewComprobante = (url) => {
         if (!url) {
             setAlert({ type: 'info', message: 'No se encontró un comprobante para esta cuota.' });
@@ -105,7 +132,7 @@ const RegistrarPago = () => {
                     setErrors={(e) => setForm(prev => ({ ...prev, errors: e }))}
                 />
                 
-                {form.id_Cliente && (
+                {form.id_Cliente && !loading && (
                     <ListaPrestamosCliente
                         prestamos={prestamosCliente}
                         onSelectPrestamo={handleSelectPrestamo}
@@ -113,11 +140,13 @@ const RegistrarPago = () => {
                     />
                 )}
 
-                {prestamoSeleccionado && (
+                {prestamoSeleccionado && !loading && (
                     <TablaCuotas
                         cuotas={prestamoSeleccionado.cuota}
                         onPagar={handleAbrirModalPago}
                         onViewComprobante={handleViewComprobante}
+                        onCancelarTotal={handleAbrirModalCancelacion}
+                        onReprogramar={() => alert('Función de reprogramación no implementada.')}
                     />
                 )}
             </div>
@@ -128,6 +157,7 @@ const RegistrarPago = () => {
                     onConfirm={handleConfirmarPago}
                     onClose={() => setCuotaParaPagar(null)}
                     loading={loading}
+                    isCancelacion={esCancelacion}
                 />
             )}
 

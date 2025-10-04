@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { CreditCard } from 'lucide-react';
 
-const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
+const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading, isCancelacion = false }) => {
     
-    // Se calculan los montos una sola vez para usarlos en todo el componente.
     const excedenteAnterior = parseFloat(cuota.excedente_anterior || 0);
     const totalDeudaCuota = parseFloat(cuota.monto) + parseFloat(cuota.cargo_mora || 0);
     const montoFinalAPagar = Math.max(0, totalDeudaCuota - excedenteAnterior);
@@ -14,12 +13,9 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
         observaciones: '',
     });
     
-    // Estado para saber si el monto ingresado es válido.
     const [montoEsValido, setMontoEsValido] = useState(true);
 
-    // Este efecto se ejecuta cada vez que el usuario cambia el monto.
     useEffect(() => {
-        // Comprueba si el monto pagado es mayor o igual al que se debe.
         const esValido = parseFloat(formData.monto_pagado) >= montoFinalAPagar;
         setMontoEsValido(esValido);
     }, [formData.monto_pagado, montoFinalAPagar]);
@@ -31,7 +27,6 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
     
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Doble validación por si acaso
         if (!montoEsValido) return;
 
         const dataToSend = {
@@ -43,8 +38,7 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
         onConfirm(dataToSend);
     };
 
-    // Estilos para reutilizar
-    const inputStyle = `w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition`;
+    const inputStyle = `w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition disabled:bg-gray-100`;
     const btnSecondary = `px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50`;
     const btnPrimary = `px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400`;
 
@@ -54,9 +48,11 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
                 <form onSubmit={handleSubmit}>
                     <div className="p-5 border-b bg-gray-50 rounded-t-lg flex justify-between items-start">
                         <div className="flex items-center gap-3">
-                            <div className="bg-red-100 p-2 rounded-full"><CreditCard className="w-6 h-6 text-red-700" /></div>
+                            <div className="bg-green-100 p-2 rounded-full"><CreditCard className="w-6 h-6 text-green-700" /></div>
                             <div>
-                                <h2 className="text-xl font-bold text-slate-800">Registrar Pago de Cuota #{cuota.numero_cuota}</h2>
+                                <h2 className="text-xl font-bold text-slate-800">
+                                    {isCancelacion ? 'Confirmar Cancelación Total' : `Registrar Pago de Cuota #${cuota.numero_cuota}`}
+                                </h2>
                                 <p className="text-sm text-gray-500">Préstamo ID: {cuota.id_Prestamo}</p>
                             </div>
                         </div>
@@ -81,6 +77,7 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
                                 name="monto_pagado" 
                                 value={formData.monto_pagado} 
                                 onChange={handleChange}
+                                readOnly={isCancelacion}
                                 className={`${inputStyle} ${!montoEsValido ? 'border-red-500 ring-2 ring-red-300' : ''}`}
                                 step="0.01" 
                                 required 
@@ -96,7 +93,7 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
                                 onChange={handleChange} 
                                 className={inputStyle} 
                                 rows="3"
-                                placeholder="Ej: Pago adelantado, acuerdo de pago, etc."
+                                placeholder={isCancelacion ? "Ej: Cancelación total por parte del cliente." : "Ej: Pago adelantado, acuerdo de pago, etc."}
                             ></textarea>
                         </div>
                     </div>
@@ -106,7 +103,7 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
                             Cancelar
                         </button>
                         <button type="submit" disabled={loading || !montoEsValido} className={btnPrimary}>
-                            {loading ? 'Procesando...' : 'Confirmar Pago'}
+                            {loading ? 'Procesando...' : (isCancelacion ? 'Confirmar Cancelación' : 'Confirmar Pago')}
                         </button>
                     </div>
                 </form>

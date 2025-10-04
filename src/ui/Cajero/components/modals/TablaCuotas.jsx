@@ -1,6 +1,7 @@
 import React from 'react';
 
-const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, processingId }) => {
+// 1. Añadimos las nuevas props para los botones
+const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, onCancelarTotal, onReprogramar, processingId }) => {
     const estadoCuotaMap = { 1: 'Pendiente', 2: 'Pagado', 3: 'Vencido' };
     const estadoCuotaColors = { 1: 'text-yellow-700 bg-yellow-100', 2: 'text-green-700 bg-green-100', 3: 'text-red-700 bg-red-100' };
 
@@ -8,9 +9,31 @@ const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, processingId }) => {
 
     return (
         <div>
-            <h3 className="text-lg font-semibold text-slate-700 mb-4">Cronograma de Pagos</h3>
+            {/* --- INICIO DE LA MODIFICACIÓN --- */}
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-slate-700">Cronograma de Pagos</h3>
+                
+                {/* 2. Contenedor para los nuevos botones */}
+                <div className="flex gap-2">
+                    <button
+                        onClick={onCancelarTotal}
+                        className="bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-200"
+                    >
+                        Cancelar Total Préstamo
+                    </button>
+                    <button
+                        onClick={onReprogramar}
+                        className="bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-yellow-200"
+                    >
+                        Reprogramar Préstamo
+                    </button>
+                </div>
+            </div>
+            {/* --- FIN DE LA MODIFICACIÓN --- */}
+            
             <div className="overflow-x-auto bg-white rounded-lg shadow">
                 <table className="min-w-full text-sm">
+                    {/* ... (el resto de la tabla no necesita cambios) ... */}
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-4 py-2 text-left">N° Cuota</th>
