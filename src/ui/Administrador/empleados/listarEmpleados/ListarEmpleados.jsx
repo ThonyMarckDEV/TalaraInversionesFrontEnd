@@ -28,7 +28,7 @@ const ListarEmpleados = () => {
     const [searchQuery, setSearchQuery] = useState(''); // Usado para el debounce
 
     // Mapeo de roles para la tabla
-    const roleMap = { 4: 'Asesor', 5: 'Cajero' };
+    const roleMap = { 3: 'Asesor', 4: 'Cajero' };
 
     // Función de búsqueda estabilizada con useCallback
     const fetchEmpleados = useCallback(async (page, rol, search) => {
