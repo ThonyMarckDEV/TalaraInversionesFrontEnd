@@ -1,4 +1,4 @@
-// src/components/Shared/ClienteSearchSelect.jsx
+// src/components/Shared/ClienteSearchSelect.jsx (CLEANED)
 
 import React, { useState } from 'react';
 import { showCliente } from 'services/clienteService'; // Importamos el servicio
@@ -19,7 +19,8 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
     const handleDniChange = (e) => {
         const { value } = e.target;
         setDniInput(value);
-        setErrors(prev => ({ ...prev, clienteDni: null }));
+        // Limpia el error específico de DNI al empezar a escribir
+        setErrors(prev => ({ ...prev, clienteDni: null })); 
 
         // Opcional: Limpiar cliente seleccionado si el DNI cambia
         if (form.id_Cliente && form.clienteDni !== value) {
@@ -27,7 +28,7 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
         }
     };
 
-    // 2. Lógica de Búsqueda, ahora interna
+    // 2. Lógica de Búsqueda
     const handleSearchCliente = async () => {
         const dni = dniInput.trim();
         
@@ -65,8 +66,6 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
         }
     };
 
-    const errors = form.errors || {}; // Usar errores del form padre
-
     return (
         <section>
             <h2 className="text-xl font-semibold text-red-800 mb-4">1. Búsqueda y Selección de Cliente</h2>
@@ -83,6 +82,7 @@ const ClienteSearchSelect = ({ form, setForm, setAlert, setErrors }) => {
                         maxLength={15}
                         className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                     />
+                    {/* Usamos directamente form.errors */}
                     {form.errors.clienteDni && <p className="text-red-500 text-xs mt-1">{form.errors.clienteDni}</p>}
                 </div>
                 

@@ -89,7 +89,7 @@ const ListarEmpleados = () => {
     const executeToggleEstado = async () => {
         if (!empleadoToToggle) return;
 
-        const { id, estado } = empleadoToToggle;
+        const { id } = empleadoToToggle;
         
         setEmpleadoToToggle(null);
         setLoading(true);
