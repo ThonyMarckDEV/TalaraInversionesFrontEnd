@@ -32,12 +32,6 @@ const ListarCliente = () => {
         try {
             const data = await getClientes(page);
 
-            console.log("Paginación Info:", { 
-                currentPage: data.current_page, 
-                totalPages: data.last_page, 
-                totalItems: data.total 
-            });
-
             setClientes(data.data);
             setPaginationInfo({
                 currentPage: data.current_page,
