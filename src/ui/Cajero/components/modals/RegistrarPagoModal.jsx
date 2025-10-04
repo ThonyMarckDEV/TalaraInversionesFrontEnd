@@ -48,7 +48,7 @@ const RegistrarPagoModal = ({ cuota, onConfirm, onClose, loading, isCancelacion 
                 <form onSubmit={handleSubmit}>
                     <div className="p-5 border-b bg-gray-50 rounded-t-lg flex justify-between items-start">
                         <div className="flex items-center gap-3">
-                            <div className="bg-green-100 p-2 rounded-full"><CreditCard className="w-6 h-6 text-green-700" /></div>
+                            <div className="bg-red-100 p-2 rounded-full"><CreditCard className="w-6 h-6 text-red-700" /></div>
                             <div>
                                 <h2 className="text-xl font-bold text-slate-800">
                                     {isCancelacion ? 'Confirmar Cancelación Total' : `Registrar Pago de Cuota #${cuota.numero_cuota}`}
