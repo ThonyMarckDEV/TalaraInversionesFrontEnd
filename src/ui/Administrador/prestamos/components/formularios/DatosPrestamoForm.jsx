@@ -6,7 +6,7 @@ import ProductoSelect from 'components/Shared/Comboboxes/ProductoSelect';
 const DatosPrestamoForm = ({ form, handleChange, errors }) => { 
     return (
         <section>
-            <h2 className="text-xl font-semibold text-indigo-700 mb-4">2. Datos del Préstamo</h2>
+            <h2 className="text-xl font-semibold text-red-800 mb-4">2. Datos del Préstamo</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 
                 {/* Producto usando el componente encapsulado ProductoSelect */}

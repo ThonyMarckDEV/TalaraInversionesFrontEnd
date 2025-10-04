@@ -6,7 +6,7 @@ import AsesorSearchSelect from 'components/Shared/Comboboxes/AsesorSearchSelect'
 const FrecuenciaAsesorForm = ({ form, handleChange, errors }) => {
     return (
         <section>
-            <h2 className="text-xl font-semibold text-indigo-700 mb-4">4. Frecuencia, Asesor y Modalidad</h2>
+            <h2 className="text-xl font-semibold text-red-800 mb-4">4. Frecuencia, Asesor y Modalidad</h2>
             <div className="grid grid-cols-1 gap-6">
                 
                 {/* Frecuencia */}
@@ -16,7 +16,7 @@ const FrecuenciaAsesorForm = ({ form, handleChange, errors }) => {
                         name="frecuencia" 
                         value={form.frecuencia}
                         onChange={handleChange}
-                        className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        className="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500"
                     >
                         <option value="">Seleccione Frecuencia</option>
                         <option value="SEMANAL">SEMANAL</option>
@@ -40,7 +40,7 @@ const FrecuenciaAsesorForm = ({ form, handleChange, errors }) => {
                         name="modalidad" 
                         value={form.modalidad}
                         onChange={handleChange}
-                        className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        className="w-full border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500"
                     >
                         <option value="">Seleccione Modalidad</option>
                         <option value="NUEVO">NUEVO</option>

@@ -7,7 +7,7 @@ const ResultadosCalculo = ({ totalPagar, valorCuota }) => {
     
     return (
         <section>
-            <h2 className="text-xl font-semibold text-indigo-700 mb-4">3. Resultados del Cálculo</h2>
+            <h2 className="text-xl font-semibold text-red-800 mb-4">3. Resultados del Cálculo</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-yellow-50 p-4 border border-yellow-300 rounded-lg">
                 
                 {/* Valor de la Cuota */}
