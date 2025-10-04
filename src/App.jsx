@@ -42,6 +42,9 @@ import EditarPrestamo from 'ui/Administrador/prestamos/editarPrestamo/EditarPres
 
 //UIS ASESOR
 
+//UIS CAJERO
+import RegistrarPago from 'ui/Cajero/pagos/RegistrarPago';
+
 
 // Utilities
 import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
@@ -144,6 +147,9 @@ function AppContent() {
         {/* Ruta Home (cuando solo pones /cajero) */}
         <Route index element={<Home />} />
 
+      {/* RUTAS Pagos */}
+        {/* Ruta Registrar Pagos */}
+        <Route path="registrar-pago" element={<RegistrarPago/>} />
 
       </Route>
 

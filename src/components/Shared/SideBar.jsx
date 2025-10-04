@@ -61,13 +61,10 @@ const menus = {
         },
     ],
     cajero: [
-        { section: 'Dashboard', link: '/cajero/dashboard' },
-        { section: 'Reports', link: '/cajero/reports' },
         {
-            section: 'Teams',
+            section: 'Prestamos',
             subs: [
-                { name: 'Team List', link: '/encargado/teams/list' },
-                { name: 'Assign Tasks', link: '/encargado/teams/tasks' },
+                { name: 'Registrar Pago', link: '/cajero/registrar-pago' },
             ],
         },
     ],
