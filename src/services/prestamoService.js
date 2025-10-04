@@ -43,3 +43,14 @@ export const getPrestamoById = async (id) => {
     const response = await fetchWithAuth(`${API_BASE_URL}/api/prestamo/show/${id}`);
     return handleResponse(response);
 };
+
+/**
+ * Obtiene los detalles completos de un préstamo por su ID.
+ */
+export const extornarPrestamo = async (id) => {
+    // ==========================================================
+    // CORRECCIÓN PRINCIPAL: Usando la URL exacta que definiste
+    // ==========================================================
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/prestamo/extornar/${id}`);
+    return handleResponse(response);
+};
