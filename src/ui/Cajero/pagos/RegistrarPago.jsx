@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getPrestamos, getPrestamoById } from 'services/prestamoService';
+import { getPrestamos, getPrestamoById, reprogramarPrestamo } from 'services/prestamoService';
 import { registrarPago, cancelarTotalPrestamo } from 'services/pagoService';
 import ClienteSearchSelect from 'components/Shared/Comboboxes/ClienteSearchSelect';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -7,6 +7,7 @@ import LoadingScreen from 'components/Shared/LoadingScreen';
 import ListaPrestamosCliente from '../components/ListaPrestamosCliente';
 import TablaCuotas from '../components/modals/TablaCuotas';
 import RegistrarPagoModal from '../components/modals/RegistrarPagoModal';
+import ReprogramarModal from '../components/modals/ReprogramarModal';
 import ViewPdfModal from 'components/Shared/Modals/ViewPdfModal';
 import API_BASE_URL from 'js/urlHelper';
 
@@ -19,12 +20,14 @@ const RegistrarPago = () => {
     const [selectedPrestamoId, setSelectedPrestamoId] = useState(null);
     const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
     
+    // Estados para los modales
     const [cuotaParaPagar, setCuotaParaPagar] = useState(null);
-    const [esCancelacion, setEsCancelacion] = useState(false); // Estado para diferenciar el tipo de pago
-
+    const [esCancelacion, setEsCancelacion] = useState(false);
+    const [reprogramacionData, setReprogramacionData] = useState(null);
     const [pdfUrl, setPdfUrl] = useState('');
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
+    // --- BÚSQUEDA DE DATOS ---
     const buscarPrestamos = useCallback(async () => {
         if (!form.id_Cliente) {
             setPrestamosCliente([]);
@@ -61,6 +64,7 @@ const RegistrarPago = () => {
         }
     }, []);
 
+    // --- MANEJADORES DE MODALES ---
     const handleAbrirModalPago = (cuotaId) => {
         const cuota = prestamoSeleccionado.cuota.find(c => c.id === cuotaId);
         setCuotaParaPagar(cuota);
@@ -83,7 +87,7 @@ const RegistrarPago = () => {
             id: ultimaCuota.id,
             id_Prestamo: prestamoSeleccionado.id,
             numero_cuota: `Total (${cuotasPendientes.length} cuotas)`,
-            monto: deudaTotal.toFixed(2), // Usamos 'monto' para el cálculo en el modal
+            monto: deudaTotal.toFixed(2),
             cargo_mora: 0,
             excedente_anterior: 0,
         };
@@ -92,6 +96,31 @@ const RegistrarPago = () => {
         setEsCancelacion(true);
     };
 
+    const handleAbrirModalReprogramacion = () => {
+        const cuotasPendientes = prestamoSeleccionado.cuota.filter(c => c.estado !== 2);
+        if (cuotasPendientes.length === 0) {
+            setAlert({ type: 'info', message: 'No hay cuotas pendientes para reprogramar.' });
+            return;
+        }
+
+        const deudaTotal = cuotasPendientes.reduce((total, c) => {
+            return total + Math.max(0, (parseFloat(c.capital || 0) + parseFloat(c.cargo_mora || 0)) - parseFloat(c.excedente_anterior || 0));
+        }, 0);
+        
+        setReprogramacionData({ prestamo: prestamoSeleccionado, deuda: deudaTotal });
+    };
+
+    const handleViewComprobante = (url) => {
+        if (!url) {
+            setAlert({ type: 'info', message: 'No se encontró un comprobante para esta cuota.' });
+            return;
+        }
+        const fullUrl = `${API_BASE_URL}${url}`;
+        setPdfUrl(fullUrl);
+        setIsPdfModalOpen(true);
+    };
+
+    // --- MANEJADORES DE CONFIRMACIÓN ---
     const handleConfirmarPago = async (pagoData) => {
         setLoading(true);
         try {
@@ -107,19 +136,30 @@ const RegistrarPago = () => {
             setLoading(false);
         }
     };
-    
-    const handleViewComprobante = (url) => {
-        if (!url) {
-            setAlert({ type: 'info', message: 'No se encontró un comprobante para esta cuota.' });
-            return;
+
+      const handleConfirmarReprogramacion = async (data) => {
+        setLoading(true);
+        try {
+            const response = await reprogramarPrestamo(data);
+            setAlert({ type: 'success', message: response.message });
+            setReprogramacionData(null); // Cierra el modal
+            
+            // --- INICIO DE LA CORRECCIÓN ---
+            // 1. Vuelve a cargar la lista de préstamos del cliente para actualizar los datos.
+            await buscarPrestamos();
+            // 2. Vuelve a cargar los detalles del préstamo actual para refrescar la tabla de cuotas.
+            await handleSelectPrestamo(data.prestamo_id);
+            // --- FIN DE LA CORRECCIÓN ---
+
+        } catch (err) {
+            setAlert({ type: 'error', message: err.message || 'Error al reprogramar el préstamo.' });
+        } finally {
+            setLoading(false);
         }
-        const fullUrl = `${API_BASE_URL}${url}`;
-        setPdfUrl(fullUrl);
-        setIsPdfModalOpen(true);
     };
 
     return (
-        <div className="container mx-auto p-6 bg-gray-50">
+        <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
             {loading && <LoadingScreen />}
             <h1 className="text-3xl font-bold text-slate-800 mb-8">Registrar Pago de Cuotas</h1>
             <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
@@ -132,7 +172,7 @@ const RegistrarPago = () => {
                     setErrors={(e) => setForm(prev => ({ ...prev, errors: e }))}
                 />
                 
-                {form.id_Cliente && !loading && (
+                {form.id_Cliente && (
                     <ListaPrestamosCliente
                         prestamos={prestamosCliente}
                         onSelectPrestamo={handleSelectPrestamo}
@@ -140,13 +180,13 @@ const RegistrarPago = () => {
                     />
                 )}
 
-                {prestamoSeleccionado && !loading && (
+                {prestamoSeleccionado && (
                     <TablaCuotas
                         cuotas={prestamoSeleccionado.cuota}
                         onPagar={handleAbrirModalPago}
                         onViewComprobante={handleViewComprobante}
                         onCancelarTotal={handleAbrirModalCancelacion}
-                        onReprogramar={() => alert('Función de reprogramación no implementada.')}
+                        onReprogramar={handleAbrirModalReprogramacion}
                     />
                 )}
             </div>
@@ -158,6 +198,17 @@ const RegistrarPago = () => {
                     onClose={() => setCuotaParaPagar(null)}
                     loading={loading}
                     isCancelacion={esCancelacion}
+                />
+            )}
+
+            {reprogramacionData && (
+                 <ReprogramarModal
+                    isOpen={!!reprogramacionData}
+                    onClose={() => setReprogramacionData(null)}
+                    onConfirm={handleConfirmarReprogramacion}
+                    prestamo={reprogramacionData?.prestamo}
+                    deudaTotal={reprogramacionData?.deuda}
+                    loading={loading}
                 />
             )}
 

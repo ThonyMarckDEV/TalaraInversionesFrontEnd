@@ -72,3 +72,19 @@ export const updatePrestamo = async (id, prestamoData) => {
     });
     return handleResponse(response);
 };
+
+/**
+ * Envía una solicitud para reprogramar un préstamo.
+ * @param {object} data - Contiene prestamo_id, nueva_tasa y nueva_frecuencia.
+ */
+export const reprogramarPrestamo = async (data) => {
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/prestamo/reprogramar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+};
