@@ -5,8 +5,10 @@ import ClienteSearchSelect from 'components/Shared/Comboboxes/ClienteSearchSelec
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import ListaPrestamosCliente from '../components/ListaPrestamosCliente';
-import TablaCuotas from '../components/modals/TablaCuotas'; // Corregí la ruta, probablemente no está en 'modals'
-import RegistrarPagoModal from '../components/modals/RegistrarPagoModal'; // Corregí la ruta
+import TablaCuotas from '../components/modals/TablaCuotas';
+import RegistrarPagoModal from '../components/modals/RegistrarPagoModal';
+import ViewPdfModal from 'components/Shared/Modals/ViewPdfModal';
+import API_BASE_URL from 'js/urlHelper';
 
 const RegistrarPago = () => {
     const [form, setForm] = useState({ id_Cliente: null, clienteDni: '', clienteNombre: '', errors: {} });
@@ -18,6 +20,10 @@ const RegistrarPago = () => {
     const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
     
     const [cuotaParaPagar, setCuotaParaPagar] = useState(null);
+    
+    // Estados para el modal de visualización de PDF
+    const [pdfUrl, setPdfUrl] = useState('');
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
     const buscarPrestamos = useCallback(async () => {
         if (!form.id_Cliente) {
@@ -66,18 +72,24 @@ const RegistrarPago = () => {
             const response = await registrarPago(pagoData);
             setAlert({ type: 'success', message: response.message });
             setCuotaParaPagar(null);
-            await handleSelectPrestamo(selectedPrestamoId);
+            await handleSelectPrestamo(selectedPrestamoId); // Refresca los datos
         } catch (err) {
             setAlert({ type: 'error', message: err.message || 'Error al procesar el pago.' });
         } finally {
             setLoading(false);
         }
     };
-
-    // Si está cargando al inicio, mostrar el loader de pantalla completa
-    if (loading && !form.id_Cliente) {
-        return <LoadingScreen />;
-    }
+    
+    // Función para manejar la visualización del comprobante
+    const handleViewComprobante = (url) => {
+        if (!url) {
+            setAlert({ type: 'info', message: 'No se encontró un comprobante para esta cuota.' });
+            return;
+        }
+        const fullUrl = `${API_BASE_URL}${url}`;
+        setPdfUrl(fullUrl);
+        setIsPdfModalOpen(true);
+    };
 
     return (
         <div className="container mx-auto p-6 bg-gray-50">
@@ -92,9 +104,8 @@ const RegistrarPago = () => {
                     setAlert={setAlert}
                     setErrors={(e) => setForm(prev => ({ ...prev, errors: e }))}
                 />
-
                 
-                {!loading && form.id_Cliente && (
+                {form.id_Cliente && (
                     <ListaPrestamosCliente
                         prestamos={prestamosCliente}
                         onSelectPrestamo={handleSelectPrestamo}
@@ -102,11 +113,11 @@ const RegistrarPago = () => {
                     />
                 )}
 
-                {!loading && prestamoSeleccionado && (
+                {prestamoSeleccionado && (
                     <TablaCuotas
                         cuotas={prestamoSeleccionado.cuota}
                         onPagar={handleAbrirModalPago}
-                        loading={loading} // Pasamos el estado de carga
+                        onViewComprobante={handleViewComprobante}
                     />
                 )}
             </div>
@@ -119,6 +130,12 @@ const RegistrarPago = () => {
                     loading={loading}
                 />
             )}
+
+            <ViewPdfModal
+                isOpen={isPdfModalOpen}
+                onClose={() => setIsPdfModalOpen(false)}
+                pdfUrl={pdfUrl}
+            />
         </div>
     );
 };

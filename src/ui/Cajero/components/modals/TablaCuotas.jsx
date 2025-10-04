@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TablaCuotas = ({ cuotas, onPagar, processingId }) => {
+const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, processingId }) => {
     const estadoCuotaMap = { 1: 'Pendiente', 2: 'Pagado', 3: 'Vencido' };
     const estadoCuotaColors = { 1: 'text-yellow-700 bg-yellow-100', 2: 'text-green-700 bg-green-100', 3: 'text-red-700 bg-red-100' };
 
@@ -26,13 +26,10 @@ const TablaCuotas = ({ cuotas, onPagar, processingId }) => {
                     </thead>
                     <tbody>
                         {cuotas.map((c, index) => {
-                            // --- INICIO DE LA CORRECCIÓN ---
-                            // Fórmula correcta: (Monto + Mora) - Excedente
                             const monto = parseFloat(c.monto || 0);
                             const mora = parseFloat(c.cargo_mora || 0);
                             const excedente = parseFloat(c.excedente_anterior || 0);
                             const montoAPagar = Math.max(0, (monto + mora) - excedente);
-                            // --- FIN DE LA CORRECCIÓN ---
                             
                             return (
                                 <tr key={c.id} className="border-t">
@@ -58,7 +55,13 @@ const TablaCuotas = ({ cuotas, onPagar, processingId }) => {
                                                 {processingId === c.id ? 'Pagando...' : 'Pagar'}
                                             </button>
                                         ) : (
-                                            <span className="text-green-600 font-bold text-xs">Pagado</span>
+                                            <button
+                                                onClick={() => onViewComprobante(c.comprobante_url)}
+                                                disabled={!c.comprobante_url}
+                                                className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                            >
+                                                Comprobante
+                                            </button>
                                         )}
                                     </td>
                                 </tr>
