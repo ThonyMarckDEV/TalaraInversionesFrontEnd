@@ -8,7 +8,7 @@ const AlertMessage = ({ type, message, details, onClose }) => {
         if (onClose && message) { // 💡 Verificamos "message" aquí dentro de la lógica del efecto
             const timer = setTimeout(() => {
                 onClose();
-            }, 3000);
+            }, 5000);
 
             return () => clearTimeout(timer);
         }
