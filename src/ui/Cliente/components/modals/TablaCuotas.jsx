@@ -7,10 +7,10 @@ const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, onCancelarTotal }) =>
         2: 'text-green-700 bg-green-100',    // Pagado
         3: 'text-orange-700 bg-orange-100',  // Vence Hoy
         4: 'text-red-700 bg-red-100',        // Vencido
-        5: 'text-blue-700 bg-blue-100'       // Prepagado (Procesando)
+        5: 'text-blue-700 bg-blue-100'       // Virtual Prepagado (Procesando)
     };
 
-    // --- LÓGICA CORREGIDA ---
+   
     // Busca el índice de la primera cuota que no esté estrictamente en estado "Pagado" (2).
     // Esto bloquea las siguientes cuotas si la anterior está en "Procesando" (5).
     const primeraCuotaPendienteIndex = cuotas.findIndex(c => c.estado !== 2);

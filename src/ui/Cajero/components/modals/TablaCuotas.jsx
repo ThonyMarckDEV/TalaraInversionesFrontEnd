@@ -7,7 +7,7 @@ const TablaCuotas = ({
     onViewComprobante, 
     onCancelarTotal, 
     onReprogramar, 
-    onViewCaptura, // <--- NUEVA PROP
+    onViewCaptura,
     processingId 
 }) => {
     const estadoCuotaMap = { 

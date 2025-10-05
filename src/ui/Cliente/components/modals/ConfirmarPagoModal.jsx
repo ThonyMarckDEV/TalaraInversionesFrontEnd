@@ -27,8 +27,7 @@ const ConfirmarPagoModal = ({ cuota, onConfirm, onClose, loading, isCancelacion 
         }
 
         const formData = new FormData();
-        
-        // CORREGIDO: Usamos 'id_Cuota' como lo espera el backend según tu último error.
+
         formData.append('id_Cuota', cuota.id);
         
         formData.append('monto_pagado', montoFinalAPagar.toFixed(2));

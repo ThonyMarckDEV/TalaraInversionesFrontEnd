@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getPrestamos, getPrestamoById, reprogramarPrestamo } from 'services/prestamoService';
-// Asumo que tienes servicios para aceptar/rechazar pagos
+
 import { registrarPago, cancelarTotalPrestamo, aceptarPagoVirtual, rechazarPagoVirtual } from 'services/pagoService'; 
 import ClienteSearchSelect from 'components/Shared/Comboboxes/ClienteSearchSelect';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';

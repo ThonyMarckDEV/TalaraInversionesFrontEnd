@@ -19,7 +19,6 @@ const ListaPrestamosCliente = ({ prestamos, onSelectPrestamo, selectedPrestamoId
                         checked={selectedPrestamoId === p.id}
                     />
                     
-                    {/* --- INICIO DE LA MODIFICACIÓN --- */}
                     <div className="ml-4 flex-grow grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                         <p className="text-sm font-medium">
                             ID: <span className="font-bold text-red-800">{p.id}</span>
@@ -34,7 +33,6 @@ const ListaPrestamosCliente = ({ prestamos, onSelectPrestamo, selectedPrestamoId
                             Total: <span className="font-semibold">S/ {parseFloat(p.total).toFixed(2)}</span>
                         </p>
                     </div>
-                    {/* --- FIN DE LA MODIFICACIÓN --- */}
 
                 </label>
             ))}
