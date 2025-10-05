@@ -40,15 +40,12 @@ const menus = {
         },
     ],
     cliente: [
-        { section: 'Home', link: '/cliente' },
         {
-            section: 'Solicitud Préstamos',
+            section: 'Prestamos',
             subs: [
-                { name: 'Solicitar', link: '/cliente/solicitar-prestamo' },
-                { name: 'Mis Solicitudes', link: '/cliente/mis-solicitudes' },
+                { name: 'Pagar Prestamo', link: '/cliente/pagar-prestamo' },
             ],
         },
-        { section: 'Support', link: '/cliente/support' },
     ],
     asesor: [
         { section: 'Dashboard', link: '/asesor/dashboard' },
