@@ -59,3 +59,36 @@ export const cancelarTotalConArchivo = async (formData) => {
     });
     return handleResponse(response);
 };
+
+
+/**
+ * Acepta una captura de pago virtual para una cuota.
+ * @param {number} cuotaId - ID de la cuota a aceptar.
+ */
+export const aceptarPagoVirtual = async (cuotaId) => {
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/pago/captura/aceptar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ id_Cuota: cuotaId }),
+    });
+    return handleResponse(response);
+};
+
+/**
+ * Rechaza una captura de pago virtual para una cuota.
+ * @param {number} cuotaId - ID de la cuota a rechazar.
+ */
+export const rechazarPagoVirtual = async (cuotaId) => {
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/pago/captura/rechazar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ id_Cuota: cuotaId }),
+    });
+    return handleResponse(response);
+};

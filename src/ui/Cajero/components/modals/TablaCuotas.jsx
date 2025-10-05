@@ -1,39 +1,58 @@
+// TablaCuotas.jsx
 import React from 'react';
 
-// 1. Añadimos las nuevas props para los botones
-const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, onCancelarTotal, onReprogramar, processingId }) => {
-    const estadoCuotaMap = { 1: 'Pendiente', 2: 'Pagado', 3: 'Vencido' };
-    const estadoCuotaColors = { 1: 'text-yellow-700 bg-yellow-100', 2: 'text-green-700 bg-green-100', 3: 'text-red-700 bg-red-100' };
-
+const TablaCuotas = ({ 
+    cuotas, 
+    onPagar, 
+    onViewComprobante, 
+    onCancelarTotal, 
+    onReprogramar, 
+    onViewCaptura, // <--- NUEVA PROP
+    processingId 
+}) => {
+    const estadoCuotaMap = { 
+        1: 'Pendiente', 
+        2: 'Pagado', 
+        3: 'Vence Hoy', 
+        4: 'Vencido', 
+        5: 'Procesando' // Estado Virtual 
+    };
+    const estadoCuotaColors = {
+        1: 'text-yellow-700 bg-yellow-100',  
+        2: 'text-green-700 bg-green-100',    
+        3: 'text-orange-700 bg-orange-100',  
+        4: 'text-red-700 bg-red-100',        
+        5: 'text-blue-700 bg-blue-100'       
+    };
+    
+    // Lógica para deshabilitar el botón Pagar para cuotas no consecutivas
     const primeraCuotaPendienteIndex = cuotas.findIndex(c => c.estado !== 2);
 
     return (
         <div>
-            {/* --- INICIO DE LA MODIFICACIÓN --- */}
+            {/* --- BOTONES GLOBALES DEL PRÉSTAMO --- */}
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-slate-700">Cronograma de Pagos</h3>
                 
-                {/* 2. Contenedor para los nuevos botones */}
                 <div className="flex gap-2">
                     <button
                         onClick={onCancelarTotal}
-                        className="bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-200"
+                        className="bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-200 transition"
                     >
                         Cancelar Total Préstamo
                     </button>
                     <button
                         onClick={onReprogramar}
-                        className="bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-yellow-200"
+                        className="bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-yellow-200 transition"
                     >
                         Reprogramar Préstamo
                     </button>
                 </div>
             </div>
-            {/* --- FIN DE LA MODIFICACIÓN --- */}
             
+            {/* --- TABLA DE CUOTAS --- */}
             <div className="overflow-x-auto bg-white rounded-lg shadow">
                 <table className="min-w-full text-sm">
-                    {/* ... (el resto de la tabla no necesita cambios) ... */}
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-4 py-2 text-left">N° Cuota</th>
@@ -54,34 +73,45 @@ const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, onCancelarTotal, onRe
                             const excedente = parseFloat(c.excedente_anterior || 0);
                             const montoAPagar = Math.max(0, (monto + mora) - excedente);
                             
+                            // Adjuntamos el montoAPagar para que el modal lo pueda usar (aunque el backend debería mandarlo)
+                            const cuotaData = { ...c, montoAPagarSinExcedente: montoAPagar };
+                            
                             return (
-                                <tr key={c.id} className="border-t">
-                                    <td className="px-4 py-2 font-medium">{c.numero_cuota}</td>
-                                    <td className="px-4 py-2">{new Date(c.fecha_vencimiento).toLocaleDateString()}</td>
+                                <tr key={c.id} className="border-t hover:bg-gray-50 transition">
+                                    <td className="px-4 py-2 font-medium">{cuotaData.numero_cuota}</td>
+                                    <td className="px-4 py-2">{new Date(cuotaData.fecha_vencimiento).toLocaleDateString()}</td>
                                     <td className="px-4 py-2 text-right">{monto.toFixed(2)}</td>
-                                    <td className={`px-4 py-2 text-right ${mora > 0 ? 'text-red-600 font-semibold' : ''}`}>{mora.toFixed(2)}</td>
-                                    <td className={`px-4 py-2 text-right ${c.dias_mora > 0 ? 'text-red-600 font-semibold' : ''}`}>{c.dias_mora || 0}</td>
+                                    <td className="px-4 py-2 text-right text-red-600">{mora.toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-right text-red-600">{cuotaData.dias_mora || 0}</td>
                                     <td className="px-4 py-2 text-right text-blue-600">{excedente.toFixed(2)}</td>
-                                    <td className="px-4 py-2 text-right font-bold bg-gray-50">{montoAPagar.toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-right font-bold bg-gray-100">{montoAPagar.toFixed(2)}</td>
                                     <td className="px-4 py-2 text-center">
-                                        <span className={`px-2 py-1 font-semibold leading-tight rounded-full text-xs ${estadoCuotaColors[c.estado]}`}>
-                                            {estadoCuotaMap[c.estado]}
+                                        <span className={`px-2 py-1 font-semibold leading-tight rounded-full text-xs ${estadoCuotaColors[cuotaData.estado]}`}>
+                                            {estadoCuotaMap[cuotaData.estado]}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-center">
-                                        {c.estado !== 2 ? (
+                                        
+                                        {cuotaData.estado === 5 ? ( // <--- LÓGICA CLAVE: ESTADO PROCESANDO
                                             <button
-                                                onClick={() => onPagar(c.id)}
-                                                disabled={processingId === c.id || index !== primeraCuotaPendienteIndex}
-                                                className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                                onClick={() => onViewCaptura(cuotaData)}
+                                                className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-blue-700 transition"
                                             >
-                                                {processingId === c.id ? 'Pagando...' : 'Pagar'}
+                                                Ver Pago
                                             </button>
-                                        ) : (
+                                        ) : cuotaData.estado !== 2 ? ( // Cuotas Pendientes/Vencidas
                                             <button
-                                                onClick={() => onViewComprobante(c.comprobante_url)}
-                                                disabled={!c.comprobante_url}
-                                                className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                                onClick={() => onPagar(cuotaData.id)}
+                                                disabled={processingId === cuotaData.id || index !== primeraCuotaPendienteIndex}
+                                                className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+                                            >
+                                                {processingId === cuotaData.id ? 'Pagando...' : 'Pagar'}
+                                            </button>
+                                        ) : ( // Cuota Pagada (estado 2)
+                                            <button
+                                                onClick={() => onViewComprobante(cuotaData.comprobante_url)}
+                                                disabled={!cuotaData.comprobante_url}
+                                                className="bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
                                             >
                                                 Comprobante
                                             </button>
