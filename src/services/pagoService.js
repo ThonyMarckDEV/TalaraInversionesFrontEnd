@@ -33,3 +33,29 @@ export const cancelarTotalPrestamo = async (pagoData) => {
     });
     return handleResponse(response);
 };
+
+
+/**
+ * Registra un nuevo pago que INCLUYE un archivo de comprobante.
+ * @param {FormData} formData - Los datos del pago como FormData.
+ */
+export const registrarPagoConArchivo = async (formData) => {
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/pago/store`, {
+        method: 'POST',
+        // SIN headers y SIN JSON.stringify. El navegador lo hará automáticamente.
+        body: formData,
+    });
+    return handleResponse(response);
+};
+
+/**
+ * Cancela un préstamo que INCLUYE un archivo de comprobante.
+ * @param {FormData} formData - Los datos del pago como FormData.
+ */
+export const cancelarTotalConArchivo = async (formData) => {
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/pago/cancelar-total`, {
+        method: 'POST',
+        body: formData,
+    });
+    return handleResponse(response);
+};

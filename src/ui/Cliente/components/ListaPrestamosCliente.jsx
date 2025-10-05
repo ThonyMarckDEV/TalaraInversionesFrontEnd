@@ -3,12 +3,12 @@ import React from 'react';
 const ListaPrestamosCliente = ({ prestamos, onSelectPrestamo, selectedPrestamoId }) => {
 
     if (prestamos.length === 0) {
-        return <p className="text-center text-gray-500 py-4">El cliente no tiene préstamos vigentes.</p>;
+        return <p className="text-center text-gray-500 py-4">No tiene préstamos vigentes.</p>;
     }
 
     return (
         <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-slate-700">Préstamos Vigentes del Cliente</h3>
+            <h3 className="text-lg font-semibold text-slate-700">Préstamos Vigentes </h3>
             {prestamos.map((p) => (
                 <label key={p.id} className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${selectedPrestamoId === p.id ? 'bg-red-50 border-red-500 shadow-md' : 'bg-white hover:bg-gray-50'}`}>
                     <input

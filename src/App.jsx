@@ -38,7 +38,7 @@ import ListarPrestamos from 'ui/Administrador/prestamos/listarPrestamo/ListarPre
 import EditarPrestamo from 'ui/Administrador/prestamos/editarPrestamo/EditarPrestamo';
 
 // UIS CLIENTE
-import RegistrarPagoCliente from 'ui/Cliente/pagos/RegistrarPago';
+import PagarPrestamo from 'ui/Cliente/pagos/PagarPrestamo';
 
 //UIS ASESOR
 
@@ -118,7 +118,7 @@ function AppContent() {
         {/* Ruta Home (cuando solo pones /cliente) */}
         <Route index element={<Home />} />
 
-        <Route path="pagar-prestamo" element={<RegistrarPagoCliente />} />
+        <Route path="pagar-prestamo" element={<PagarPrestamo />} />
         
 
         {/* Aquí agregas más módulos */}

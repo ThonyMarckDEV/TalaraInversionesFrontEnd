@@ -1,35 +1,31 @@
 import React from 'react';
 
-const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, onCancelarTotal, onReprogramar }) => {
-    const estadoCuotaMap = { 1: 'Pendiente', 2: 'Pagado', 3: 'Vencido' };
-    const estadoCuotaColors = { 1: 'text-yellow-700 bg-yellow-100', 2: 'text-green-700 bg-green-100', 3: 'text-red-700 bg-red-100' };
+const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, onCancelarTotal }) => {
+    const estadoCuotaMap = { 1: 'Pendiente', 2: 'Pagado', 3: 'Vence Hoy', 4: 'Vencido', 5: 'Procesando' };
+    const estadoCuotaColors = {
+        1: 'text-yellow-700 bg-yellow-100',  // Pendiente
+        2: 'text-green-700 bg-green-100',    // Pagado
+        3: 'text-orange-700 bg-orange-100',  // Vence Hoy
+        4: 'text-red-700 bg-red-100',        // Vencido
+        5: 'text-blue-700 bg-blue-100'       // Prepagado (Procesando)
+    };
 
-    // Encuentra el índice de la primera cuota que no está pagada (estado diferente de 2)
+    // --- LÓGICA CORREGIDA ---
+    // Busca el índice de la primera cuota que no esté estrictamente en estado "Pagado" (2).
+    // Esto bloquea las siguientes cuotas si la anterior está en "Procesando" (5).
     const primeraCuotaPendienteIndex = cuotas.findIndex(c => c.estado !== 2);
 
     return (
         <div>
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-slate-700">Cronograma de Pagos</h3>
-                
                 <div className="flex gap-2">
-                    {/* Este botón solo aparece si la función onCancelarTotal es pasada en las props */}
                     {onCancelarTotal && (
                         <button
                             onClick={onCancelarTotal}
                             className="bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-200"
                         >
                             Cancelar Total Préstamo
-                        </button>
-                    )}
-                    
-                    {/* Este botón solo aparece si la función onReprogramar es pasada en las props */}
-                    {onReprogramar && (
-                        <button
-                            onClick={onReprogramar}
-                            className="bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-yellow-200"
-                        >
-                            Reprogramar Préstamo
                         </button>
                     )}
                 </div>
@@ -57,7 +53,6 @@ const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, onCancelarTotal, onRe
                             const excedente = parseFloat(c.excedente_anterior || 0);
                             const montoAPagar = Math.max(0, (monto + mora) - excedente);
                             
-                            // El botón de pagar solo se activa para la primera cuota pendiente
                             const isPayable = index === primeraCuotaPendienteIndex;
 
                             return (
@@ -70,30 +65,47 @@ const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, onCancelarTotal, onRe
                                     <td className="px-4 py-2 text-right text-blue-600">{excedente.toFixed(2)}</td>
                                     <td className="px-4 py-2 text-right font-bold bg-gray-50 text-gray-900">{montoAPagar.toFixed(2)}</td>
                                     <td className="px-4 py-2 text-center">
-                                        <span className={`px-2 py-1 font-semibold leading-tight rounded-full text-xs ${estadoCuotaColors[c.estado]}`}>
-                                            {estadoCuotaMap[c.estado]}
+                                        <span className={`px-2 py-1 font-semibold leading-tight rounded-full text-xs ${estadoCuotaColors[c.estado] || 'bg-gray-200'}`}>
+                                            {estadoCuotaMap[c.estado] || 'Desconocido'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-center">
-                                        {c.estado !== 2 ? (
-                                            <button
-                                                onClick={() => onPagar(c.id)}
-                                                disabled={!isPayable} // Deshabilitado si no es la primera cuota pendiente
-                                                className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                                title={!isPayable ? 'Debe pagar las cuotas anteriores primero' : 'Pagar cuota'}
-                                            >
-                                                Pagar
-                                            </button>
-                                        ) : (
-                                            <button
-                                                onClick={() => onViewComprobante(c.comprobante_url)}
-                                                disabled={!c.comprobante_url}
-                                                className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                                title={!c.comprobante_url ? 'No hay comprobante disponible' : 'Ver comprobante'}
-                                            >
-                                                Comprobante
-                                            </button>
-                                        )}
+                                        {(() => {
+                                            if (c.estado === 5) { // Estado Prepagado
+                                                return (
+                                                    <button
+                                                        disabled
+                                                        className="bg-blue-500 text-white px-3 py-1 rounded-md text-xs font-bold opacity-70 cursor-not-allowed"
+                                                        title="Su pago está siendo verificado."
+                                                    >
+                                                        Procesando...
+                                                    </button>
+                                                );
+                                            }
+                                            if (c.estado === 2) { // Estado Pagado
+                                                return (
+                                                    <button
+                                                        onClick={() => onViewComprobante(c.comprobante_url)}
+                                                        disabled={!c.comprobante_url}
+                                                        className="bg-sky-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-sky-700 disabled:bg-gray-400"
+                                                        title={!c.comprobante_url ? 'No hay comprobante disponible' : 'Ver comprobante'}
+                                                    >
+                                                        Comprobante
+                                                    </button>
+                                                );
+                                            }
+                                            // Otros estados: Pendiente, Vence Hoy, Vencido
+                                            return (
+                                                <button
+                                                    onClick={() => onPagar(c.id)}
+                                                    disabled={!isPayable}
+                                                    className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                                    title={!isPayable ? 'Debe pagar las cuotas anteriores primero' : 'Pagar cuota'}
+                                                >
+                                                    Pagar
+                                                </button>
+                                            );
+                                        })()}
                                     </td>
                                 </tr>
                             );
