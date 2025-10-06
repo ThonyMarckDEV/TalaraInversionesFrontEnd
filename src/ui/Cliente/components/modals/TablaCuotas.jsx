@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, onCancelarTotal }) => {
+const TablaCuotas = ({ cuotas, onPagar, onViewComprobante }) => {
     const estadoCuotaMap = { 1: 'Pendiente', 2: 'Pagado', 3: 'Vence Hoy', 4: 'Vencido', 5: 'Procesando' };
     const estadoCuotaColors = {
         1: 'text-yellow-700 bg-yellow-100',  // Pendiente
@@ -17,20 +17,7 @@ const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, onCancelarTotal }) =>
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-slate-700">Cronograma de Pagos</h3>
-                <div className="flex gap-2">
-                    {onCancelarTotal && (
-                        <button
-                            onClick={onCancelarTotal}
-                            className="bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-xs font-bold hover:bg-red-200"
-                        >
-                            Cancelar Total Préstamo
-                        </button>
-                    )}
-                </div>
-            </div>
-            
+        
             <div className="overflow-x-auto bg-white rounded-lg shadow">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import jwtUtils from 'utilities/Token/jwtUtils';
 import { getPrestamos, getPrestamoById } from 'services/prestamoService';
-import { registrarPagoConArchivo, cancelarTotalConArchivo } from 'services/pagoService'; 
+import { registrarPagoConArchivo } from 'services/pagoService';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import ListaPrestamosCliente from '../components/ListaPrestamosCliente';
@@ -14,22 +14,21 @@ const PagarPrestamo = () => {
     const [clienteId, setClienteId] = useState(null);
     const [alert, setAlert] = useState(null);
     const [loading, setLoading] = useState(true);
-    
+
     const [prestamosCliente, setPrestamosCliente] = useState([]);
     const [selectedPrestamoId, setSelectedPrestamoId] = useState(null);
     const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
-    
+
     // State for modals
     const [cuotaParaPagar, setCuotaParaPagar] = useState(null);
-    const [esCancelacion, setEsCancelacion] = useState(false);
     const [pdfUrl, setPdfUrl] = useState('');
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
     useEffect(() => {
         try {
             const token = jwtUtils.getAccessTokenFromCookie();
-            const idUsuario = jwtUtils.getUserID(token); 
-            
+            const idUsuario = jwtUtils.getUserID(token);
+
             if (idUsuario) {
                 setClienteId(idUsuario);
             } else {
@@ -57,10 +56,10 @@ const PagarPrestamo = () => {
 
     const buscarPrestamos = useCallback(async () => {
         if (!clienteId) return;
-        
+
         setLoading(true);
         try {
-            const response = await getPrestamos(1, null, 'id', 'desc', clienteId); 
+            const response = await getPrestamos(1, null, 'id', 'desc', clienteId);
             const prestamosActivos = response.data.filter(p => p.estado === 1);
             setPrestamosCliente(prestamosActivos);
 
@@ -83,34 +82,8 @@ const PagarPrestamo = () => {
     const handleAbrirModalPago = (cuotaId) => {
         const cuota = prestamoSeleccionado.cuota.find(c => c.id === cuotaId);
         setCuotaParaPagar(cuota);
-        setEsCancelacion(false);
     };
 
-    const handleAbrirModalCancelacion = () => {
-        const cuotasPendientes = prestamoSeleccionado.cuota.filter(c => c.estado !== 2);
-        if (cuotasPendientes.length === 0) return;
-
-        const deudaTotal = cuotasPendientes.reduce((total, c) => {
-            const monto = parseFloat(c.monto || 0);
-            const mora = parseFloat(c.cargo_mora || 0);
-            const excedente = parseFloat(c.excedente_anterior || 0);
-            return total + Math.max(0, (monto + mora) - excedente);
-        }, 0);
-        
-        const ultimaCuota = cuotasPendientes[cuotasPendientes.length - 1];
-        const dataCancelacion = {
-            id: ultimaCuota.id, // The service might need an ID, we use the last one
-            id_Prestamo: prestamoSeleccionado.id,
-            numero_cuota: `Total (${cuotasPendientes.length} cuotas)`,
-            monto: deudaTotal.toFixed(2),
-            cargo_mora: 0,
-            excedente_anterior: 0,
-        };
-        
-        setCuotaParaPagar(dataCancelacion);
-        setEsCancelacion(true);
-    };
-    
     const handleViewComprobante = (url) => {
         if (!url) {
             setAlert({ type: 'info', message: 'No se encontró un comprobante para esta cuota.' });
@@ -127,12 +100,10 @@ const PagarPrestamo = () => {
             const dataToSend = pagoFormData;
             dataToSend.append('modalidad', 'VIRTUAL');
             dataToSend.append('fecha_pago', new Date().toISOString().split('T')[0]);
-            
-            // 2. Elige entre las NUEVAS funciones de servicio
-            const service = esCancelacion ? cancelarTotalConArchivo : registrarPagoConArchivo;
-            
-            const response = await service(dataToSend);
-            
+
+            // Lógica simplificada: siempre se registra el pago de una cuota.
+            const response = await registrarPagoConArchivo(dataToSend);
+
             setAlert({ type: 'success', message: response.message });
             setCuotaParaPagar(null);
             await handleSelectPrestamo(selectedPrestamoId);
@@ -143,7 +114,7 @@ const PagarPrestamo = () => {
             setLoading(false);
         }
     };
-    
+
     return (
         <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
             {loading && <LoadingScreen />}
@@ -162,7 +133,6 @@ const PagarPrestamo = () => {
                         cuotas={prestamoSeleccionado.cuota}
                         onPagar={handleAbrirModalPago}
                         onViewComprobante={handleViewComprobante}
-                        onCancelarTotal={handleAbrirModalCancelacion}
                     />
                 )}
             </div>
@@ -173,10 +143,9 @@ const PagarPrestamo = () => {
                     onConfirm={handleConfirmarPago}
                     onClose={() => setCuotaParaPagar(null)}
                     loading={loading}
-                    isCancelacion={esCancelacion}
                 />
             )}
-            
+
             <ViewPdfModal
                 isOpen={isPdfModalOpen}
                 onClose={() => setIsPdfModalOpen(false)}

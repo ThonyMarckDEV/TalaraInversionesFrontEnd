@@ -49,19 +49,6 @@ export const registrarPagoConArchivo = async (formData) => {
 };
 
 /**
- * Cancela un préstamo que INCLUYE un archivo de comprobante.
- * @param {FormData} formData - Los datos del pago como FormData.
- */
-export const cancelarTotalConArchivo = async (formData) => {
-    const response = await fetchWithAuth(`${API_BASE_URL}/api/pago/cancelar-total`, {
-        method: 'POST',
-        body: formData,
-    });
-    return handleResponse(response);
-};
-
-
-/**
  * Acepta una captura de pago virtual para una cuota.
  * @param {number} cuotaId - ID de la cuota a aceptar.
  */

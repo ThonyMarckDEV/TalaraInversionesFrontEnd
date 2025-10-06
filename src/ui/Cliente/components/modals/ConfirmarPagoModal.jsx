@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CreditCard, Upload, Landmark } from 'lucide-react';
 
-const ConfirmarPagoModal = ({ cuota, onConfirm, onClose, loading, isCancelacion = false }) => {
+const ConfirmarPagoModal = ({ cuota, onConfirm, onClose, loading }) => {
     
     const [paymentMethod, setPaymentMethod] = useState('yape');
     const [comprobanteFile, setComprobanteFile] = useState(null);
@@ -27,9 +27,7 @@ const ConfirmarPagoModal = ({ cuota, onConfirm, onClose, loading, isCancelacion 
         }
 
         const formData = new FormData();
-
         formData.append('id_Cuota', cuota.id);
-        
         formData.append('monto_pagado', montoFinalAPagar.toFixed(2));
         formData.append('metodo_pago', paymentMethod.toUpperCase());
         formData.append('comprobante', comprobanteFile);
@@ -51,7 +49,7 @@ const ConfirmarPagoModal = ({ cuota, onConfirm, onClose, loading, isCancelacion 
                             <div className="bg-red-100 p-3 rounded-full"><CreditCard className="w-7 h-7 text-red-700" /></div>
                             <div>
                                 <h2 className="text-2xl font-bold text-slate-800">
-                                    {isCancelacion ? 'Confirmar Cancelación Total' : 'Realizar Pago en Línea'}
+                                    Realizar Pago en Línea
                                 </h2>
                                 <p className="text-sm text-gray-500">Préstamo ID: {cuota.id_Prestamo}</p>
                             </div>
@@ -96,7 +94,7 @@ const ConfirmarPagoModal = ({ cuota, onConfirm, onClose, loading, isCancelacion 
                                     <div className="text-center space-y-2">
                                         <p className="font-semibold">Pagar con Yape</p>
                                         <div className="bg-gray-300 h-28 w-28 mx-auto flex items-center justify-center text-xs text-gray-600">
-                                            [QR Code Placeholder]
+                                            
                                         </div>
                                         <p className="text-sm">o al número: <span className="font-mono font-bold">987 654 321</span></p>
                                     </div>
