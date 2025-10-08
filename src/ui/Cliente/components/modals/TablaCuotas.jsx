@@ -15,7 +15,10 @@ const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, cronogramaUrl, onView
 
     // Busca el índice de la primera cuota que no esté estrictamente en estado "Pagado" (2).
     // Esto bloquea las siguientes cuotas si la anterior está en "Procesando" (5).
-    const primeraCuotaPendienteIndex = cuotas.findIndex(c => c.estado !== 2);
+    const primeraCuotaPendienteIndex = cuotas.findIndex(c => c.estado !== 2)
+    
+     // AGREGA ESTA LÍNEA PARA DEPURAR
+    console.log('La URL del cronograma que recibe TablaCuotas es:', cronogramaUrl);;
 
     return (
         <div>
