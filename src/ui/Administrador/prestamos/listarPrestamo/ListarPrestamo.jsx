@@ -113,7 +113,13 @@ const ListarPrestamos = () => {
             setAlert({ type: 'info', message: 'No se encontró un archivo de cronograma para este préstamo.' });
             return;
         }
-        const fullUrl = `${API_BASE_URL}${url}`;
+
+        // 1. Detecta si la URL ya es absoluta (empieza con http o https)
+        const isAbsoluteUrl = url.startsWith('http');
+
+        // 2. Si es absoluta, la usa directamente. Si no, le añade la base de la API.
+        const fullUrl = isAbsoluteUrl ? url : `${API_BASE_URL}${url}`;
+
         setPdfUrl(fullUrl);
         setIsPdfModalOpen(true);
     };

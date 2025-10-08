@@ -65,7 +65,7 @@ const RegistrarPago = () => {
         }
     }, []);
 
-    // ... (handleAbrirModalPago y otros son iguales)
+
     const handleAbrirModalPago = (cuotaId) => {
         const cuota = prestamoSeleccionado.cuota.find(c => c.id === cuotaId);
         setCuotaParaPagar(cuota);
@@ -111,7 +111,12 @@ const RegistrarPago = () => {
             setAlert({ type: 'info', message: 'No se encontró un comprobante para esta cuota.' });
             return;
         }
-        const fullUrl = `${API_BASE_URL}${url}`;
+
+        // 1. Detecta si la URL ya es absoluta (empieza con http o https)
+        const isAbsoluteUrl = url.startsWith('http');
+
+        // 2. Si es absoluta, la usa directamente. Si no, le añade la base de la API.
+        const fullUrl = isAbsoluteUrl ? url : `${API_BASE_URL}${url}`;
 
         setPdfUrl(fullUrl);
         setIsPdfModalOpen(true);

@@ -14,10 +14,19 @@ const ModalVerCaptura = ({ cuota, onClose, onAceptar, onRechazar, isProcessing }
     // Si la cuota es null o undefined, el modal no se renderiza.
     if (!cuota) return null;
 
-    // --- INICIO DE LA CORRECCIÓN 1 ---
-    // La ruta que viene del backend ya incluye "/storage/", por lo que solo unimos la base con la ruta.
-    const imageUrl = `${API_BASE_URL}${cuota.captura_pago_url}`;
-    
+    // --- INICIO DE LA CORRECCIÓN ---
+    const url = cuota.captura_pago_url;
+    let imageUrl = null;
+
+    if (url) {
+        // 1. Detecta si la URL ya es absoluta (empieza con http o https)
+        const isAbsoluteUrl = url.startsWith('http');
+        
+        // 2. Si es absoluta, la usa directamente. Si no, le añade la base de la API.
+        imageUrl = isAbsoluteUrl ? url : `${API_BASE_URL}${url}`;
+    }
+    // --- FIN DE LA CORRECCIÓN ---
+
     // Calcula el monto neto a pagar
     const montoNeto = parseFloat(cuota.monto || 0) + parseFloat(cuota.cargo_mora || 0) - parseFloat(cuota.excedente_anterior || 0);
     
@@ -40,9 +49,7 @@ const ModalVerCaptura = ({ cuota, onClose, onAceptar, onRechazar, isProcessing }
                         <p className="text-xs text-blue-700">Estado actual: Procesando (5)</p>
                     </div>
                     
-                    {/* --- INICIO DE LA CORRECCIÓN 2 --- */}
-                    {/* Aquí también se corrige el nombre de la propiedad a 'captura_pago_url' */}
-                    {cuota.captura_pago_url ? (
+                    {imageUrl ? (
                         <div className="mt-4">
                             <p className="text-sm font-medium mb-2">Captura de Pago (Click para ver en tamaño completo):</p>
                             <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="block border-2 border-gray-200 hover:border-blue-500 rounded-md overflow-hidden">
