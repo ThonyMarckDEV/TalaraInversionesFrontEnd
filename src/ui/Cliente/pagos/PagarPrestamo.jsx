@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import jwtUtils from 'utilities/Token/jwtUtils';
-import { getPrestamos } from 'services/prestamoService';
+import { getPrestamos, getPrestamoById } from 'services/prestamoService';
 import { registrarPagoConArchivo } from 'services/pagoService';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
@@ -24,15 +24,15 @@ const PagarPrestamo = () => {
     const [pdfUrl, setPdfUrl] = useState('');
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
-    // 1. Obtiene el ID del cliente al iniciar
     useEffect(() => {
         try {
             const token = jwtUtils.getAccessTokenFromCookie();
             const idUsuario = jwtUtils.getUserID(token);
+
             if (idUsuario) {
                 setClienteId(idUsuario);
             } else {
-                setAlert({ type: 'error', message: 'No se pudo identificar al usuario.' });
+                setAlert({ type: 'error', message: 'No se pudo identificar al usuario. Por favor, inicie sesión de nuevo.' });
                 setLoading(false);
             }
         } catch (err) {
@@ -41,68 +41,62 @@ const PagarPrestamo = () => {
         }
     }, []);
 
-    // 2. Función para BUSCAR la lista de préstamos. Ahora solo depende de 'clienteId'.
+    const handleSelectPrestamo = useCallback(async (prestamoId) => {
+        setSelectedPrestamoId(prestamoId);
+        setLoading(true);
+        try {
+            const response = await getPrestamoById(prestamoId);
+            setPrestamoSeleccionado(response.data);
+        } catch (err) {
+            setAlert({ type: 'error', message: 'Error al cargar el detalle del préstamo.' });
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     const buscarPrestamos = useCallback(async () => {
         if (!clienteId) return;
+
         setLoading(true);
         try {
             const response = await getPrestamos(1, null, 'id', 'desc', clienteId);
             const prestamosActivos = response.data.filter(p => p.estado === 1);
             setPrestamosCliente(prestamosActivos);
+
+            if (prestamosActivos.length === 1) {
+                handleSelectPrestamo(prestamosActivos[0].id);
+            }
         } catch (err) {
             setAlert({ type: 'error', message: 'Error al buscar tus préstamos activos.' });
         } finally {
             setLoading(false);
         }
-    }, [clienteId]);
+    }, [clienteId, handleSelectPrestamo]);
 
-    // 3. Función para SELECCIONAR un préstamo de la lista. Ahora solo depende de 'prestamosCliente'.
-    const handleSelectPrestamo = useCallback((prestamoId) => {
-        const prestamoEncontrado = prestamosCliente.find(p => p.id === prestamoId);
-        if (prestamoEncontrado) {
-            setSelectedPrestamoId(prestamoId);
-            setPrestamoSeleccionado(prestamoEncontrado);
-        }
-    }, [prestamosCliente]);
-    
-    // 4. useEffect para LLAMAR A LA BÚSQUEDA cuando tengamos el 'clienteId'.
     useEffect(() => {
         if (clienteId) {
             buscarPrestamos();
         }
     }, [clienteId, buscarPrestamos]);
 
-    // 5. NUEVO useEffect para AUTO-SELECCIONAR cuando la lista de préstamos cambie.
-    // Esto rompe el bucle.
-    useEffect(() => {
-        if (prestamosCliente.length === 1 && !prestamoSeleccionado) {
-            handleSelectPrestamo(prestamosCliente[0].id);
-        }
-    }, [prestamosCliente, handleSelectPrestamo, prestamoSeleccionado]);
-
     const handleAbrirModalPago = (cuotaId) => {
         const cuota = prestamoSeleccionado.cuota.find(c => c.id === cuotaId);
         setCuotaParaPagar(cuota);
     };
 
-    const handleViewCronograma = (url) => {
-        if (!url) {
-            setAlert({ type: 'info', message: 'No se encontró un archivo de cronograma.' });
-            return;
-        }
-        const isAbsoluteUrl = url.startsWith('http');
-        const fullUrl = isAbsoluteUrl ? url : `${API_BASE_URL}${url}`;
-        setPdfUrl(fullUrl);
-        setIsPdfModalOpen(true);
-    };
 
     const handleViewComprobante = (url) => {
         if (!url) {
-            setAlert({ type: 'info', message: 'No se encontró un comprobante.' });
+            setAlert({ type: 'info', message: 'No se encontró un comprobante para esta cuota.' });
             return;
         }
+
+        // 1. Detecta si la URL ya es absoluta (empieza con http o https)
         const isAbsoluteUrl = url.startsWith('http');
+
+        // 2. Si es absoluta, la usa directamente. Si no, le añade la base de la API.
         const fullUrl = isAbsoluteUrl ? url : `${API_BASE_URL}${url}`;
+
         setPdfUrl(fullUrl);
         setIsPdfModalOpen(true);
     };
@@ -113,11 +107,13 @@ const PagarPrestamo = () => {
             const dataToSend = pagoFormData;
             dataToSend.append('modalidad', 'VIRTUAL');
             dataToSend.append('fecha_pago', new Date().toISOString().split('T')[0]);
+
+            // Lógica simplificada: siempre se registra el pago de una cuota.
             const response = await registrarPagoConArchivo(dataToSend);
+
             setAlert({ type: 'success', message: response.message });
             setCuotaParaPagar(null);
-            // Vuelve a cargar la lista de préstamos para ver los cambios
-            await buscarPrestamos();
+            await handleSelectPrestamo(selectedPrestamoId);
         } catch (err) {
             console.error("Error detallado del backend:", err);
             setAlert({ type: 'error', message: err.message || 'Error al procesar el pago.' });
@@ -131,22 +127,23 @@ const PagarPrestamo = () => {
             {loading && <LoadingScreen />}
             <h1 className="text-3xl font-bold text-slate-800 mb-8">Mis Pagos Pendientes</h1>
             <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+
             <div className="bg-white p-6 shadow-xl rounded-lg space-y-8">
                 <ListaPrestamosCliente
                     prestamos={prestamosCliente}
                     onSelectPrestamo={handleSelectPrestamo}
                     selectedPrestamoId={selectedPrestamoId}
                 />
+
                 {prestamoSeleccionado && (
                     <TablaCuotas
                         cuotas={prestamoSeleccionado.cuota}
                         onPagar={handleAbrirModalPago}
                         onViewComprobante={handleViewComprobante}
-                        cronogramaUrl={prestamoSeleccionado.cronograma_url}
-                        onViewCronograma={handleViewCronograma}
                     />
                 )}
             </div>
+
             {cuotaParaPagar && (
                 <ConfirmarPagoModal
                     cuota={cuotaParaPagar}
@@ -155,6 +152,7 @@ const PagarPrestamo = () => {
                     loading={loading}
                 />
             )}
+
             <ViewPdfModal
                 isOpen={isPdfModalOpen}
                 onClose={() => setIsPdfModalOpen(false)}
