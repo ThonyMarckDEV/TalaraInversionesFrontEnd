@@ -1,23 +1,38 @@
 import React from 'react';
 
-const TablaCuotas = ({ cuotas, onPagar, onViewComprobante }) => {
+// NOTE: The handler logic for API_BASE_URL, setAlert, and setPdfUrl 
+// is assumed to be implemented and passed from the parent component via props.
+
+const TablaCuotas = ({ cuotas, onPagar, onViewComprobante, cronogramaUrl, onViewCronograma }) => {
     const estadoCuotaMap = { 1: 'Pendiente', 2: 'Pagado', 3: 'Vence Hoy', 4: 'Vencido', 5: 'Procesando' };
     const estadoCuotaColors = {
-        1: 'text-yellow-700 bg-yellow-100',  // Pendiente
-        2: 'text-green-700 bg-green-100',    // Pagado
-        3: 'text-orange-700 bg-orange-100',  // Vence Hoy
-        4: 'text-red-700 bg-red-100',        // Vencido
-        5: 'text-blue-700 bg-blue-100'       // Virtual Prepagado (Procesando)
+        1: 'text-yellow-700 bg-yellow-100',  // Pendiente
+        2: 'text-green-700 bg-green-100',    // Pagado
+        3: 'text-orange-700 bg-orange-100',  // Vence Hoy
+        4: 'text-red-700 bg-red-100',        // Vencido
+        5: 'text-blue-700 bg-blue-100'       // Virtual Prepagado (Procesando)
     };
 
-   
     // Busca el índice de la primera cuota que no esté estrictamente en estado "Pagado" (2).
     // Esto bloquea las siguientes cuotas si la anterior está en "Procesando" (5).
     const primeraCuotaPendienteIndex = cuotas.findIndex(c => c.estado !== 2);
 
     return (
         <div>
-        
+            {/* Contenedor del Título y el Botón de Cronograma */}
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-gray-800">Cronograma de Pagos</h3>
+                {/* Botón para ver el Cronograma */}
+                <button
+                    onClick={() => onViewCronograma(cronogramaUrl)}
+                    disabled={!cronogramaUrl}
+                    className="bg-sky-700 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-sky-800 transition duration-150 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    title={!cronogramaUrl ? 'Cronograma no disponible' : 'Ver el documento del cronograma de pagos'}
+                >
+                    Ver Cronograma
+                </button>
+            </div>
+            
             <div className="overflow-x-auto bg-white rounded-lg shadow">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
@@ -58,7 +73,7 @@ const TablaCuotas = ({ cuotas, onPagar, onViewComprobante }) => {
                                     </td>
                                     <td className="px-4 py-2 text-center">
                                         {(() => {
-                                            if (c.estado === 5) { // Estado Prepagado
+                                            if (c.estado === 5) { // Estado Procesando
                                                 return (
                                                     <button
                                                         disabled

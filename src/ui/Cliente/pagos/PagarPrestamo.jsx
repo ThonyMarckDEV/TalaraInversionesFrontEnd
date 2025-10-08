@@ -84,6 +84,21 @@ const PagarPrestamo = () => {
         setCuotaParaPagar(cuota);
     };
 
+    const handleViewCronograma = (url) => {
+        if (!url) {
+            setAlert({ type: 'info', message: 'No se encontró un archivo de cronograma para este préstamo.' });
+            return;
+        }
+
+        // 1. Detecta si la URL ya es absoluta (empieza con http o https)
+        const isAbsoluteUrl = url.startsWith('http');
+
+        // 2. Si es absoluta, la usa directamente. Si no, le añade la base de la API.
+        const fullUrl = isAbsoluteUrl ? url : `${API_BASE_URL}${url}`;
+
+        setPdfUrl(fullUrl);
+        setIsPdfModalOpen(true);
+    };
 
     const handleViewComprobante = (url) => {
         if (!url) {
@@ -113,7 +128,8 @@ const PagarPrestamo = () => {
 
             setAlert({ type: 'success', message: response.message });
             setCuotaParaPagar(null);
-            await handleSelectPrestamo(selectedPrestamoId);
+            // Vuelve a cargar el detalle del préstamo para actualizar la tabla de cuotas
+            await handleSelectPrestamo(selectedPrestamoId); 
         } catch (err) {
             console.error("Error detallado del backend:", err);
             setAlert({ type: 'error', message: err.message || 'Error al procesar el pago.' });
@@ -140,6 +156,9 @@ const PagarPrestamo = () => {
                         cuotas={prestamoSeleccionado.cuota}
                         onPagar={handleAbrirModalPago}
                         onViewComprobante={handleViewComprobante}
+                        // Nuevas props para el Cronograma:
+                        cronogramaUrl={prestamoSeleccionado.cronograma_url}
+                        onViewCronograma={handleViewCronograma}
                     />
                 )}
             </div>
