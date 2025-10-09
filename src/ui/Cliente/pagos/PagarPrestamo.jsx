@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import jwtUtils from 'utilities/Token/jwtUtils';
-import { getPrestamos } from 'services/prestamoService';
+// VOLVEMOS A NECESITAR AMBOS SERVICIOS
+import { getPrestamos, getPrestamoById } from 'services/prestamoService';
 import { registrarPagoConArchivo } from 'services/pagoService';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
@@ -15,10 +16,12 @@ const PagarPrestamo = () => {
     const [alert, setAlert] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Este estado guarda la lista inicial (que tiene cronograma_url)
     const [prestamosCliente, setPrestamosCliente] = useState([]);
-    const [selectedPrestamoId, setSelectedPrestamoId] = useState(null);
+    // Este estado guarda el préstamo detallado (que tiene comprobante_url en las cuotas)
     const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
-
+    
+    const [selectedPrestamoId, setSelectedPrestamoId] = useState(null);
     const [cuotaParaPagar, setCuotaParaPagar] = useState(null);
     const [pdfUrl, setPdfUrl] = useState('');
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
@@ -39,30 +42,39 @@ const PagarPrestamo = () => {
         }
     }, []);
 
-    // CAMBIO (1/2): La función ahora devuelve la lista de préstamos.
+    // SE RESTAURA LA LLAMADA A LA API PARA OBTENER EL DETALLE (CON COMPROBANTES)
+    // No tiene dependencias para que su referencia sea estable y no cause bucles.
+    const handleSelectPrestamo = useCallback(async (prestamoId) => {
+        setLoading(true);
+        setSelectedPrestamoId(prestamoId);
+        try {
+            const response = await getPrestamoById(prestamoId);
+            setPrestamoSeleccionado(response.data);
+        } catch (err) {
+            setAlert({ type: 'error', message: 'Error al cargar el detalle del préstamo.' });
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     const buscarPrestamos = useCallback(async () => {
-        if (!clienteId) return [];
+        if (!clienteId) return;
         setLoading(true);
         try {
             const response = await getPrestamos(1, null, 'id', 'desc', clienteId);
             const prestamosActivos = response.data.filter(p => p.estado === 1);
             setPrestamosCliente(prestamosActivos);
-            return prestamosActivos; // <-- DEVUELVE LOS DATOS ACTUALIZADOS
+
+            // Auto-selección si solo hay un préstamo
+            if (prestamosActivos.length === 1) {
+                await handleSelectPrestamo(prestamosActivos[0].id);
+            }
         } catch (err) {
             setAlert({ type: 'error', message: 'Error al buscar tus préstamos activos.' });
-            return []; // Devuelve array vacío en caso de error
         } finally {
             setLoading(false);
         }
-    }, [clienteId]);
-
-    const handleSelectPrestamo = useCallback((prestamoId) => {
-        const prestamoEncontrado = prestamosCliente.find(p => p.id === prestamoId);
-        if (prestamoEncontrado) {
-            setSelectedPrestamoId(prestamoId);
-            setPrestamoSeleccionado(prestamoEncontrado);
-        }
-    }, [prestamosCliente]);
+    }, [clienteId, handleSelectPrestamo]);
     
     useEffect(() => {
         if (clienteId) {
@@ -70,13 +82,6 @@ const PagarPrestamo = () => {
         }
     }, [clienteId, buscarPrestamos]);
 
-    useEffect(() => {
-        if (prestamosCliente.length === 1 && !prestamoSeleccionado) {
-            handleSelectPrestamo(prestamosCliente[0].id);
-        }
-    }, [prestamosCliente, handleSelectPrestamo, prestamoSeleccionado]);
-
-    // CAMBIO (2/2): Usamos los datos devueltos por 'buscarPrestamos' para actualizar la vista.
     const handleConfirmarPago = async (pagoFormData) => {
         setLoading(true);
         try {
@@ -89,52 +94,45 @@ const PagarPrestamo = () => {
             setAlert({ type: 'success', message: "Pago registrado. Actualizando información..." });
             setCuotaParaPagar(null);
             
-            // 1. Llama a buscarPrestamos y recibe la lista nueva
-            const listaActualizada = await buscarPrestamos();
-            
-            // 2. Busca la versión actualizada del préstamo que estabas viendo
-            const prestamoActualizado = listaActualizada.find(p => p.id === selectedPrestamoId);
-
-            // 3. Actualiza el estado para que la pantalla se refresque con los nuevos datos
-            if (prestamoActualizado) {
-                setPrestamoSeleccionado(prestamoActualizado);
+            // Refresca la lista Y el detalle
+            await buscarPrestamos();
+            // Si ya había un préstamo seleccionado, lo refresca también
+            if(selectedPrestamoId) {
+                await handleSelectPrestamo(selectedPrestamoId);
             }
 
         } catch (err) {
-            console.error("Error detallado del backend:", err);
             setAlert({ type: 'error', message: err.message || 'Error al procesar el pago.' });
         } finally {
             setLoading(false);
         }
     };
     
+    // --- El resto de funciones no cambian ---
     const handleAbrirModalPago = (cuotaId) => {
         const cuota = prestamoSeleccionado.cuota.find(c => c.id === cuotaId);
         setCuotaParaPagar(cuota);
     };
 
     const handleViewCronograma = (url) => {
-        if (!url) {
-            setAlert({ type: 'info', message: 'No se encontró un archivo de cronograma.' });
-            return;
-        }
-        const isAbsoluteUrl = url.startsWith('http');
-        const fullUrl = isAbsoluteUrl ? url : `${API_BASE_URL}${url}`;
+        if (!url) { setAlert({ type: 'info', message: 'No se encontró un archivo de cronograma.' }); return; }
+        const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
         setPdfUrl(fullUrl);
         setIsPdfModalOpen(true);
     };
 
     const handleViewComprobante = (url) => {
-        if (!url) {
-            setAlert({ type: 'info', message: 'No se encontró un comprobante.' });
-            return;
-        }
-        const isAbsoluteUrl = url.startsWith('http');
-        const fullUrl = isAbsoluteUrl ? url : `${API_BASE_URL}${url}`;
+        if (!url) { setAlert({ type: 'info', message: 'No se encontró un comprobante.' }); return; }
+        const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
         setPdfUrl(fullUrl);
         setIsPdfModalOpen(true);
     };
     
+    // LÓGICA DE COMBINACIÓN: Se busca el préstamo de la lista que coincide con el seleccionado
+    const prestamoDeLaLista = prestamoSeleccionado
+        ? prestamosCliente.find(p => p.id === prestamoSeleccionado.id)
+        : null;
+
     return (
         <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
             {loading && <LoadingScreen />}
@@ -146,12 +144,15 @@ const PagarPrestamo = () => {
                     onSelectPrestamo={handleSelectPrestamo}
                     selectedPrestamoId={selectedPrestamoId}
                 />
-                {prestamoSeleccionado && (
+                {/* Se renderiza solo cuando tenemos datos de AMBAS fuentes */}
+                {prestamoSeleccionado && prestamoDeLaLista && (
                     <TablaCuotas
+                        // Las cuotas detalladas vienen de 'prestamoSeleccionado'
                         cuotas={prestamoSeleccionado.cuota}
                         onPagar={handleAbrirModalPago}
                         onViewComprobante={handleViewComprobante}
-                        cronogramaUrl={prestamoSeleccionado.cronograma_url}
+                        // La URL del cronograma viene de 'prestamoDeLaLista'
+                        cronogramaUrl={prestamoDeLaLista.cronograma_url}
                         onViewCronograma={handleViewCronograma}
                     />
                 )}
