@@ -1,4 +1,4 @@
-// TablaCuotas.jsx
+// src/components/modals/TablaCuotas.jsx
 import React from 'react';
 
 const TablaCuotas = ({ 
@@ -8,6 +8,7 @@ const TablaCuotas = ({
     onCancelarTotal, 
     onReprogramar, 
     onViewCaptura,
+    onReducirMora, // Prop para abrir el modal de reducción
     processingId 
 }) => {
     const estadoCuotaMap = { 
@@ -73,15 +74,27 @@ const TablaCuotas = ({
                             const excedente = parseFloat(c.excedente_anterior || 0);
                             const montoAPagar = Math.max(0, (monto + mora) - excedente);
                             
-                            // Adjuntamos el montoAPagar para que el modal lo pueda usar (aunque el backend debería mandarlo)
                             const cuotaData = { ...c, montoAPagarSinExcedente: montoAPagar };
                             
+                            const puedeReducirMora = cuotaData.dias_mora > 0 && cuotaData.estado !== 2 && !cuotaData.reduccion_mora_aplicada;
+
                             return (
                                 <tr key={c.id} className="border-t hover:bg-gray-50 transition">
                                     <td className="px-4 py-2 font-medium">{cuotaData.numero_cuota}</td>
                                     <td className="px-4 py-2">{new Date(cuotaData.fecha_vencimiento).toLocaleDateString()}</td>
                                     <td className="px-4 py-2 text-right">{monto.toFixed(2)}</td>
-                                    <td className="px-4 py-2 text-right text-red-600">{mora.toFixed(2)}</td>
+                                    <td className="px-4 py-2 text-right">
+                                        {cuotaData.reduccion_mora_aplicada ? (
+                                            <span className="text-red-600">
+                                                <del title={`Reducido en ${cuotaData.mora_reducida}%`}>
+                                                    {parseFloat(cuotaData.original_mora || mora / (1 - (cuotaData.mora_reducida / 100))).toFixed(2)}
+                                                </del>
+                                                <strong className="ml-2 text-green-700">{mora.toFixed(2)}</strong>
+                                            </span>
+                                        ) : (
+                                            <span className="text-red-600">{mora.toFixed(2)}</span>
+                                        )}
+                                    </td>
                                     <td className="px-4 py-2 text-right text-red-600">{cuotaData.dias_mora || 0}</td>
                                     <td className="px-4 py-2 text-right text-blue-600">{excedente.toFixed(2)}</td>
                                     <td className="px-4 py-2 text-right font-bold bg-gray-100">{montoAPagar.toFixed(2)}</td>
@@ -91,31 +104,32 @@ const TablaCuotas = ({
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-center">
-                                        
-                                        {cuotaData.estado === 5 ? ( // <--- LÓGICA CLAVE: ESTADO PROCESANDO
-                                            <button
-                                                onClick={() => onViewCaptura(cuotaData)}
-                                                className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-blue-700 transition"
-                                            >
-                                                Ver Pago
-                                            </button>
-                                        ) : cuotaData.estado !== 2 ? ( // Cuotas Pendientes/Vencidas
-                                            <button
-                                                onClick={() => onPagar(cuotaData.id)}
-                                                disabled={processingId === cuotaData.id || index !== primeraCuotaPendienteIndex}
-                                                className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
-                                            >
-                                                {processingId === cuotaData.id ? 'Pagando...' : 'Pagar'}
-                                            </button>
-                                        ) : ( // Cuota Pagada (estado 2)
-                                            <button
-                                                onClick={() => onViewComprobante(cuotaData.comprobante_url)}
-                                                disabled={!cuotaData.comprobante_url}
-                                                className="bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
-                                            >
-                                                Comprobante
-                                            </button>
-                                        )}
+                                        <div className="flex gap-1 justify-center flex-wrap">
+                                            {cuotaData.estado === 5 ? (
+                                                <button onClick={() => onViewCaptura(cuotaData)} className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-blue-700 transition">Ver Pago</button>
+                                            ) : cuotaData.estado !== 2 ? ( 
+                                                <>
+                                                    {puedeReducirMora && (
+                                                        <button
+                                                            onClick={() => onReducirMora(cuotaData)}
+                                                            className="bg-purple-100 text-purple-700 px-3 py-1 rounded-md text-xs font-bold hover:bg-purple-200 transition"
+                                                            title="Aplicar descuento a la mora"
+                                                        >
+                                                            Reducir Mora
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => onPagar(cuotaData.id)}
+                                                        disabled={processingId === cuotaData.id || index !== primeraCuotaPendienteIndex}
+                                                        className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+                                                    >
+                                                        {processingId === cuotaData.id ? 'Pagando...' : 'Pagar'}
+                                                    </button>
+                                                </>
+                                            ) : ( 
+                                                <button onClick={() => onViewComprobante(cuotaData.comprobante_url)} disabled={!cuotaData.comprobante_url} className="bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition">Comprobante</button>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             );

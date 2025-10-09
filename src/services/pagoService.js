@@ -79,3 +79,21 @@ export const rechazarPagoVirtual = async (cuotaId) => {
     });
     return handleResponse(response);
 };
+
+/**
+ * Aplica una reducción porcentual a la mora de una cuota específica.
+ * @param {number} cuotaId - El ID de la cuota.
+ * @param {number} porcentajeReduccion - El porcentaje de mora a reducir (1-100).
+ * @returns {Promise<any>}
+ */
+export const reducirMoraCuota = async (cuotaId, porcentajeReduccion) => {
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/prestamo/cuotas/${cuotaId}/reducir-mora`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ porcentaje_reduccion: porcentajeReduccion }),
+    });
+    return handleResponse(response);
+};

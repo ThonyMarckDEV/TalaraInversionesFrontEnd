@@ -1,13 +1,14 @@
+// src/pages/Pagos/RegistrarPago.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { getPrestamos, getPrestamoById, reprogramarPrestamo } from 'services/prestamoService';
-
-import { registrarPago, cancelarTotalPrestamo, aceptarPagoVirtual, rechazarPagoVirtual } from 'services/pagoService'; 
+import { registrarPago, cancelarTotalPrestamo, aceptarPagoVirtual, rechazarPagoVirtual, reducirMoraCuota } from 'services/pagoService'; 
 import ClienteSearchSelect from 'components/Shared/Comboboxes/ClienteSearchSelect';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import ListaPrestamosCliente from '../components/ListaPrestamosCliente';
 import TablaCuotas from '../components/modals/TablaCuotas';
 import RegistrarPagoModal from '../components/modals/RegistrarPagoModal';
+import ReducirMoraModal from '../components/modals/ReducirMoraModal'; // Importamos el nuevo modal
 import ReprogramarModal from '../components/modals/ReprogramarModal';
 import ViewPdfModal from 'components/Shared/Modals/ViewPdfModal';
 import ModalVerCaptura from 'components/Shared/Modals/ViewImageModal'; 
@@ -25,10 +26,10 @@ const RegistrarPago = () => {
     const [reprogramacionData, setReprogramacionData] = useState(null);
     const [pdfUrl, setPdfUrl] = useState('');
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
-
     const [cuotaParaVerificar, setCuotaParaVerificar] = useState(null);
     const [isProcessingAction, setIsProcessingAction] = useState(false);
-    
+    const [cuotaParaReducir, setCuotaParaReducir] = useState(null); // Estado para el modal de reducción
+
     const buscarPrestamos = useCallback(async () => {
         if (!form.id_Cliente) {
             setPrestamosCliente([]);
@@ -54,6 +55,10 @@ const RegistrarPago = () => {
 
     const handleSelectPrestamo = useCallback(async (prestamoId) => {
         setSelectedPrestamoId(prestamoId);
+        if (!prestamoId) {
+            setPrestamoSeleccionado(null);
+            return;
+        }
         setLoading(true);
         try {
             const response = await getPrestamoById(prestamoId);
@@ -64,7 +69,6 @@ const RegistrarPago = () => {
             setLoading(false);
         }
     }, []);
-
 
     const handleAbrirModalPago = (cuotaId) => {
         const cuota = prestamoSeleccionado.cuota.find(c => c.id === cuotaId);
@@ -111,30 +115,23 @@ const RegistrarPago = () => {
             setAlert({ type: 'info', message: 'No se encontró un comprobante para esta cuota.' });
             return;
         }
-
-        // 1. Detecta si la URL ya es absoluta (empieza con http o https)
         const isAbsoluteUrl = url.startsWith('http');
-
-        // 2. Si es absoluta, la usa directamente. Si no, le añade la base de la API.
         const fullUrl = isAbsoluteUrl ? url : `${API_BASE_URL}${url}`;
-
         setPdfUrl(fullUrl);
         setIsPdfModalOpen(true);
     };
 
-    // Esta función ahora abre tu nuevo modal
     const handleViewCaptura = (cuota) => {
         setCuotaParaVerificar(cuota);
     };
 
-    // Nueva función para Aceptar el Pago
     const handleAceptarPago = async (cuotaId) => {
         setIsProcessingAction(true);
         try {
             const response = await aceptarPagoVirtual(cuotaId);
             setAlert({ type: 'success', message: response.message });
-            setCuotaParaVerificar(null); // Cierra el modal
-            await handleSelectPrestamo(selectedPrestamoId); // Recarga los datos
+            setCuotaParaVerificar(null);
+            await handleSelectPrestamo(selectedPrestamoId);
         } catch (err) {
             setAlert({ type: 'error', message: err.message || 'Error al aceptar el pago.' });
         } finally {
@@ -142,21 +139,19 @@ const RegistrarPago = () => {
         }
     };
     
-    // Nueva función para Rechazar el Pago
     const handleRechazarPago = async (cuotaId) => {
         setIsProcessingAction(true);
         try {
             const response = await rechazarPagoVirtual(cuotaId);
             setAlert({ type: 'warning', message: response.message });
-            setCuotaParaVerificar(null); // Cierra el modal
-            await handleSelectPrestamo(selectedPrestamoId); // Recarga los datos
+            setCuotaParaVerificar(null);
+            await handleSelectPrestamo(selectedPrestamoId);
         } catch (err) {
             setAlert({ type: 'error', message: err.message || 'Error al rechazar el pago.' });
         } finally {
             setIsProcessingAction(false);
         }
     };
-
 
     const handleConfirmarPago = async (pagoData) => {
         setLoading(true);
@@ -188,6 +183,26 @@ const RegistrarPago = () => {
         }
     };
 
+    // --- NUEVAS FUNCIONES PARA REDUCIR MORA ---
+    const handleAbrirModalReduccion = (cuota) => {
+        setCuotaParaReducir(cuota);
+    };
+
+    const handleConfirmarReduccionMora = async ({ cuotaId, porcentaje_reduccion }) => {
+        setLoading(true);
+        try {
+            const response = await reducirMoraCuota(cuotaId, porcentaje_reduccion);
+            setAlert({ type: 'success', message: response.message });
+            setCuotaParaReducir(null);
+            await handleSelectPrestamo(selectedPrestamoId);
+        } catch (err) {
+            setAlert({ type: 'error', message: err.message || 'Error al aplicar la reducción.' });
+        } finally {
+            setLoading(false);
+        }
+    };
+    // -----------------------------------------
+
     return (
         <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
             {loading && <LoadingScreen />}
@@ -218,10 +233,12 @@ const RegistrarPago = () => {
                         onCancelarTotal={handleAbrirModalCancelacion}
                         onReprogramar={handleAbrirModalReprogramacion}
                         onViewCaptura={handleViewCaptura}
+                        onReducirMora={handleAbrirModalReduccion}
                     />
                 )}
             </div>
 
+            {/* --- Modales --- */}
             {cuotaParaPagar && (
                 <RegistrarPagoModal
                     cuota={cuotaParaPagar}
@@ -229,6 +246,16 @@ const RegistrarPago = () => {
                     onClose={() => setCuotaParaPagar(null)}
                     loading={loading}
                     isCancelacion={esCancelacion}
+                />
+            )}
+
+            {cuotaParaReducir && (
+                <ReducirMoraModal
+                    isOpen={!!cuotaParaReducir}
+                    onClose={() => setCuotaParaReducir(null)}
+                    onConfirm={handleConfirmarReduccionMora}
+                    cuota={cuotaParaReducir}
+                    loading={loading}
                 />
             )}
 
@@ -256,7 +283,6 @@ const RegistrarPago = () => {
                 onRechazar={handleRechazarPago}
                 isProcessing={isProcessingAction}
             />
-
         </div>
     );
 };
