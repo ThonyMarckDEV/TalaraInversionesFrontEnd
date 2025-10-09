@@ -8,7 +8,7 @@ const TablaCuotas = ({
     onCancelarTotal, 
     onReprogramar, 
     onViewCaptura,
-    onReducirMora, // Prop para abrir el modal de reducción
+    onReducirMora, // Prop to open the reduction modal
     processingId 
 }) => {
     const estadoCuotaMap = { 
@@ -16,7 +16,7 @@ const TablaCuotas = ({
         2: 'Pagado', 
         3: 'Vence Hoy', 
         4: 'Vencido', 
-        5: 'Procesando' // Estado Virtual 
+        5: 'Procesando' // Virtual State
     };
     const estadoCuotaColors = {
         1: 'text-yellow-700 bg-yellow-100',  
@@ -26,12 +26,12 @@ const TablaCuotas = ({
         5: 'text-blue-700 bg-blue-100'       
     };
     
-    // Lógica para deshabilitar el botón Pagar para cuotas no consecutivas
+    // Logic to disable the Pay button for non-consecutive installments
     const primeraCuotaPendienteIndex = cuotas.findIndex(c => c.estado !== 2);
 
     return (
         <div>
-            {/* --- BOTONES GLOBALES DEL PRÉSTAMO --- */}
+            {/* --- GLOBAL LOAN BUTTONS --- */}
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-slate-700">Cronograma de Pagos</h3>
                 
@@ -51,7 +51,7 @@ const TablaCuotas = ({
                 </div>
             </div>
             
-            {/* --- TABLA DE CUOTAS --- */}
+            {/* --- INSTALLMENTS TABLE --- */}
             <div className="overflow-x-auto bg-white rounded-lg shadow">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
@@ -83,18 +83,27 @@ const TablaCuotas = ({
                                     <td className="px-4 py-2 font-medium">{cuotaData.numero_cuota}</td>
                                     <td className="px-4 py-2">{new Date(cuotaData.fecha_vencimiento).toLocaleDateString()}</td>
                                     <td className="px-4 py-2 text-right">{monto.toFixed(2)}</td>
+                                    
+                                    {/* --- MODIFIED LATE FEE COLUMN WITH TEXT --- */}
                                     <td className="px-4 py-2 text-right">
                                         {cuotaData.reduccion_mora_aplicada ? (
-                                            <span className="text-red-600">
-                                                <del title={`Reducido en ${cuotaData.mora_reducida}%`}>
-                                                    {parseFloat(cuotaData.original_mora || mora / (1 - (cuotaData.mora_reducida / 100))).toFixed(2)}
-                                                </del>
-                                                <strong className="ml-2 text-green-700">{mora.toFixed(2)}</strong>
-                                            </span>
+                                            <div>
+                                                <span className="text-red-600">
+                                                    <del title={`Reducido en ${cuotaData.mora_reducida}%`}>
+                                                        {parseFloat(cuotaData.original_mora || mora / (1 - (cuotaData.mora_reducida / 100))).toFixed(2)}
+                                                    </del>
+                                                    <strong className="ml-2 text-green-700">{mora.toFixed(2)}</strong>
+                                                </span>
+                                                {/* --- ADDITIONAL TEXT HERE --- */}
+                                                <div className="text-xs text-green-800 italic font-semibold">
+                                                    (Reducida {cuotaData.mora_reducida}%)
+                                                </div>
+                                            </div>
                                         ) : (
                                             <span className="text-red-600">{mora.toFixed(2)}</span>
                                         )}
                                     </td>
+                                    
                                     <td className="px-4 py-2 text-right text-red-600">{cuotaData.dias_mora || 0}</td>
                                     <td className="px-4 py-2 text-right text-blue-600">{excedente.toFixed(2)}</td>
                                     <td className="px-4 py-2 text-right font-bold bg-gray-100">{montoAPagar.toFixed(2)}</td>
