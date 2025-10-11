@@ -70,7 +70,7 @@ const DetallePrestamoModal = ({ prestamoId, onClose }) => {
                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                                      <div><strong>Cliente:</strong><p>{`${prestamo.cliente?.datos?.nombre || ''} ${prestamo.cliente?.datos?.apellidoPaterno || ''}`.trim() || 'N/A'}</p></div>
                                      <div><strong>DNI Cliente:</strong><p>{prestamo.cliente?.datos?.dni || 'N/A'}</p></div>
-                                     <div><strong>Asesor:</strong><p>{`${prestamo.asesor?.nombre || ''} ${prestamo.asesor?.apellidoPaterno || ''} ${prestamo.asesor?.apellidoMaterno || ''}`.trim() || 'N/A'}</p></div>
+                                     <div><strong>Asesor:</strong><p>{`${prestamo.asesor?.datos?.nombre || ''} ${prestamo.asesor?.datos?.apellidoPaterno || ''} ${prestamo.asesor?.datos?.apellidoMaterno || ''}`.trim() || 'N/A'}</p></div>
                                      <div><strong>Producto:</strong><p>{prestamo.producto?.nombre || 'N/A'}</p></div>
                                      <div><strong>Modalidad:</strong><p>{prestamo.modalidad}</p></div>
                                      <div><strong>Frecuencia:</strong><p>{prestamo.frecuencia}</p></div>
