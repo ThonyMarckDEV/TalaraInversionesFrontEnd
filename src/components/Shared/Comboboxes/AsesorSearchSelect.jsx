@@ -42,6 +42,7 @@ const AsesorSearchSelect = ({ form, setForm, errors, disabled }) => {
                 return;
             }
             
+            // --- LÍNEA CORREGIDA ---
             const nombreCompleto = `${empleado.datos.nombre} ${empleado.datos.apellidoPaterno} ${empleado.datos.apellidoMaterno}`.trim();
             
             setForm(prev => ({ 
@@ -60,7 +61,6 @@ const AsesorSearchSelect = ({ form, setForm, errors, disabled }) => {
         }
     };
 
-    // --- FUNCIÓN PARA LIMPIAR ---
     const handleClear = () => {
         setDniInput('');
         setAlert(null);
@@ -79,7 +79,6 @@ const AsesorSearchSelect = ({ form, setForm, errors, disabled }) => {
                 message={alert?.message}
                 onClose={() => setAlert(null)}
             />
-            {/* --- LAYOUT AJUSTADO --- */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div className="md:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">DNI del Asesor (Rol 3)</label>
@@ -104,7 +103,6 @@ const AsesorSearchSelect = ({ form, setForm, errors, disabled }) => {
                     >
                         Buscar
                     </button>
-                    {/* --- BOTÓN AÑADIDO --- */}
                     <button 
                         type="button" 
                         onClick={handleClear}
