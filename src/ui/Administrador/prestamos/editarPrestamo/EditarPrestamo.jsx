@@ -41,7 +41,7 @@ const EditarPrestamo = () => {
                     modalidad: prestamo.modalidad,
                     // Añadimos los datos del asesor para que el componente hijo los muestre
                     asesorDni: prestamo.asesor?.datos?.dni || '',
-                    asesorNombre: `${prestamo.asesor?.datos?.nombre || ''} ${prestamo.asesor?.datos?.apellidoPaterno || ''}`.trim(),
+                    asesorNombre: `${prestamo.asesor?.datos?.nombre || ''} ${prestamo.asesor?.datos?.apellidoPaterno || ''} ${prestamo.asesor?.datos?.apellidoMaterno || ''}`.trim(),
                 });
 
                 setClienteInfo({
