@@ -6,8 +6,23 @@ const DetallePrestamoModal = ({ prestamoId, onClose }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const estadoCuotaMap = { 1: 'Pendiente', 2: 'Pagado', 3: 'Vencido' };
-    const estadoCuotaColors = { 1: 'text-yellow-700 bg-yellow-100', 2: 'text-green-700 bg-green-100', 3: 'text-red-700 bg-red-100' };
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Mapeo completo de estados y colores
+    const estadoCuotaMap = { 
+        1: 'Pendiente', 
+        2: 'Pagado', 
+        3: 'Vence Hoy', 
+        4: 'Vencido', 
+        5: 'Procesando' // O Prepagado
+    };
+    const estadoCuotaColors = {
+        1: 'text-yellow-700 bg-yellow-100',  // Pendiente
+        2: 'text-green-700 bg-green-100',    // Pagado
+        3: 'text-orange-700 bg-orange-100',  // Vence Hoy
+        4: 'text-red-700 bg-red-100',        // Vencido
+        5: 'text-blue-700 bg-blue-100'       // Procesando
+    };
+    // --- FIN DE LA CORRECCIÓN ---
 
     const fetchDetails = useCallback(async () => {
         if (!prestamoId) return;
@@ -18,9 +33,6 @@ const DetallePrestamoModal = ({ prestamoId, onClose }) => {
         try {
             const response = await getPrestamoById(prestamoId);
 
-            // ==========================================================
-            // CORRECCIÓN DEFINITIVA: Accedemos a la propiedad '.data'
-            // ==========================================================
             if (response && response.data) {
                 setPrestamo(response.data);
             } else {
@@ -58,13 +70,13 @@ const DetallePrestamoModal = ({ prestamoId, onClose }) => {
                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                                      <div><strong>Cliente:</strong><p>{`${prestamo.cliente?.datos?.nombre || ''} ${prestamo.cliente?.datos?.apellidoPaterno || ''}`.trim() || 'N/A'}</p></div>
                                      <div><strong>DNI Cliente:</strong><p>{prestamo.cliente?.datos?.dni || 'N/A'}</p></div>
-                                     <div><strong>Asesor:</strong><p>{`${prestamo.asesor?.datos?.nombre || ''} ${prestamo.asesor?.datos?.apellidoPaterno || ''}`.trim() || 'N/A'}</p></div>
+                                     <div><strong>Asesor:</strong><p>{`${prestamo.asesor?.nombre || ''} ${prestamo.asesor?.apellidoPaterno || ''} ${prestamo.asesor?.apellidoMaterno || ''}`.trim() || 'N/A'}</p></div>
                                      <div><strong>Producto:</strong><p>{prestamo.producto?.nombre || 'N/A'}</p></div>
                                      <div><strong>Modalidad:</strong><p>{prestamo.modalidad}</p></div>
                                      <div><strong>Frecuencia:</strong><p>{prestamo.frecuencia}</p></div>
                                  </div>
                              </section>
- 
+
                              <section>
                                  <h3 className="text-lg font-semibold text-red-800 border-b pb-2 mb-4">Información Financiera</h3>
                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
@@ -74,7 +86,7 @@ const DetallePrestamoModal = ({ prestamoId, onClose }) => {
                                      <div><strong>Total a Pagar:</strong><p>S/ {parseFloat(prestamo.total).toFixed(2)}</p></div>
                                  </div>
                              </section>
- 
+
                              <section>
                                  <h3 className="text-lg font-semibold text-red-800 border-b pb-2 mb-4">Cronograma de Pagos</h3>
                                  <div className="overflow-x-auto">
@@ -96,7 +108,7 @@ const DetallePrestamoModal = ({ prestamoId, onClose }) => {
                                                          <td className="px-4 py-2 text-right">{parseFloat(c.monto).toFixed(2)}</td>
                                                          <td className="px-4 py-2 text-center">
                                                              <span className={`px-2 py-1 font-semibold leading-tight rounded-full text-xs ${estadoCuotaColors[c.estado]}`}>
-                                                                 {estadoCuotaMap[c.estado]}
+                                                                 {estadoCuotaMap[c.estado] || 'Desconocido'}
                                                              </span>
                                                          </td>
                                                      </tr>
@@ -113,7 +125,7 @@ const DetallePrestamoModal = ({ prestamoId, onClose }) => {
                                  </div>
                              </section>
                          </div>
-                     )}
+                    )}
                 </div>
             </div>
         </div>
