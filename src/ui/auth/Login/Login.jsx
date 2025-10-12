@@ -111,7 +111,7 @@ const Login = () => {
           <div className="h-16 w-16 bg-amber-500 rounded-full flex items-center justify-center mb-4">
             <span className="text-3xl font-bold text-white">T</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">Ficsullana</h1>
+          <h1 className="text-2xl font-bold text-slate-800">Web Prestamos DEMOS</h1>
           <p className="text-slate-500 mt-2 text-sm">Acceso seguro a tu plataforma</p>
         </div>
 
