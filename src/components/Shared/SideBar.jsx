@@ -136,7 +136,7 @@ const Sidebar = () => {
                     <img
                         src={logo}
                         alt="Logo"
-                        className="h-20 w-auto"
+                        className="h-30 w-auto"
                     />
                 </div>
 
