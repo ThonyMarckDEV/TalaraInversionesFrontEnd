@@ -89,19 +89,11 @@ export const getRefreshTokenFromCookie = () => {
   return getCookie(refresh_token);
 };
 
-// // Función para obtener el token JWT de la cookie
-export const getRefreshTokenIDFromCookie = () => {
-  const refresh_token_id = 'refresh_token_id'; // Nombre de la cookie donde se almacena el token
-  return getCookie(refresh_token_id);
-};
-
-
 
 export const removeTokensFromCookie = () => {
   // Elimina el token de la cookie
   document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-  document.cookie = 'refresh_token_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 };
 
 
@@ -148,8 +140,7 @@ const jwtUtils = {
   getAccessTokenFromCookie,
   getRefreshTokenFromCookie,
   setAccessTokenInCookie,
-  getUserID,
-  getRefreshTokenIDFromCookie
+  getUserID
 };
 
 export default jwtUtils;

@@ -2,25 +2,27 @@ import axios from 'axios';
 import API_BASE_URL from './urlHelper';
 import jwtUtils from 'utilities/Token/jwtUtils';
 
-async function validateRefreshTokenID() {
+/**
+ * Valida el refresh token (string) contra el backend.
+ * Comprueba si el token existe en la BBDD y no ha sido revocado o expirado.
+ */
+async function validateRefreshToken() {
   try {
     const refresh_token = jwtUtils.getRefreshTokenFromCookie();
-    const refresh_token_id = jwtUtils.getRefreshTokenIDFromCookie();
-    const userID = jwtUtils.getUserID(refresh_token);
     
-    if (!refresh_token_id || !userID) {
-      console.log('[Token] No se encontró ID de refresh token o ID de usuario');
+    if (!refresh_token) {
+      console.log('[Token] No se encontró refresh token');
       return false;
     }
     
+    // El backend ahora espera el string del token
     const response = await axios.post(`${API_BASE_URL}/api/validate-refresh-token`, {
-      refresh_token_id,
-      userID
+      refresh_token
     });
     
     return response.data.valid;
   } catch (error) {
-    console.error('[Token] Error al validar ID de refresh token:', error.message);
+    console.error('[Token] Error al validar refresh token:', error.message);
     return false;
   }
 }
@@ -71,12 +73,12 @@ function isTokenExpired(token) {
 async function verificarYRenovarToken() {
   // console.log('[Token] Verificando estado del token...');
   
-  // Primero verificar si el ID del refresh token sigue siendo válido
-  const isValidRefreshTokenID = await validateRefreshTokenID();
-  if (!isValidRefreshTokenID) {
-    console.log('[Token] ID de refresh token no válido. Posible inicio de sesión en otro dispositivo.');
+  // Primero verificar si el refresh token sigue siendo válido en la BBDD
+  const isValidRefreshToken = await validateRefreshToken(); // CAMBIO: Se usa la nueva función
+  if (!isValidRefreshToken) {
+    console.log('[Token] Refresh token no válido. Posible inicio de sesión en otro dispositivo o sesión expirada.'); // CAMBIO: Mensaje actualizado
     logout();
-    throw new Error('Sesión cerrada por inicio de sesión en otro dispositivo');
+    throw new Error('Sesión cerrada por inicio de sesión en otro dispositivo o sesión expirada');
   }
   
   let access_token = jwtUtils.getAccessTokenFromCookie();
@@ -119,4 +121,4 @@ function logout() {
   window.location.href = '/'; // Redirigir a la página de login
 }
 
-export { fetchWithAuth, verificarYRenovarToken, logout, validateRefreshTokenID };
+export { fetchWithAuth, verificarYRenovarToken, logout};
